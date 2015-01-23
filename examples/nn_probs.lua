@@ -34,26 +34,21 @@ mdl:add(nn.Linear(16,2))
 mdl:add(nn.Sigmoid())
 
 --criterion = nn.ClassNLLCriterion()
--- criterion = nn.MSECriterion()
+criterion = nn.MSECriterion()
 
--- epochs = 12;
--- for epoch= 1,epochs do 
---    for i = 1,dataset:size() do
---       local input  = dataset[i][1]
---       local output = dataset[i][2]
+epochs = 12;
+for epoch= 1,epochs do 
+   for i = 1,dataset:size() do
+      local input  = dataset[i][1]
+      local output = dataset[i][2]
       
---       criterion:forward(mdl:forward(input),output)
---       mdl:zeroGradParameters()
---       mdl:backward(input,criterion:backward(mdl.output,output))
---       mdl:updateParameters(0.001)
---    end
---    print("Epoch",epoch,"of",epochs)
--- end
-
-criterion = nn.MSECriterion()  
-trainer = nn.StochasticGradient(mdl, criterion)
-trainer.learningRate = 0.01
-trainer:train(dataset)
+      criterion:forward(mdl:forward(input),output)
+      mdl:zeroGradParameters()
+      mdl:backward(input,criterion:backward(mdl.output,output))
+      mdl:updateParameters(0.001)
+   end
+   print("Epoch",epoch,"of",epochs)
+end
 
 for i=1,dataset:size() do -- Show that it worked 
   print(mdl:forward(dataset[i][1]))
