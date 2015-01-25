@@ -26,7 +26,7 @@ mdl:add(nn.SpatialConvolution(1,10,4,4)) -- output 10 x 97 x 97
 mdl:add(nn.SpatialConvolution(10,1,20,20)) -- output 1 x 78 x 78
 mdl:add(nn.Reshape(78*78)) -- reshape into Tensor(16)
 mdl:add(nn.Linear(78*78,100))
-mdl:add(nn.SoftMax())
+mdl:add(nn.SoftMax()) -- normalize
 
 
 -- criterion = nn.MSECriterion()
