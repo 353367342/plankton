@@ -5,8 +5,8 @@ function [ image_out ] = im_center( image_in, imsize )
 image_out = uint8(255*ones(imsize));
 centroid_struct = regionprops(double(im2bw(image_in)),'Centroid');
 centroid = round(centroid_struct.Centroid);
-x = round(imsize/2 - centroid(2));
-y = round(imsize/2 - centroid(1));
+x = ceil(imsize/2 - centroid(2));
+y = ceil(imsize/2 - centroid(1));
 image_out(x:(x+size(image_in,1)-1), y:(y+size(image_in,2)-1)) = image_in;
 
 end

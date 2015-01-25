@@ -11,7 +11,7 @@ switch listing(3).isdir
     case 1
         for ii = 3:length(listing)
             % Display progress
-            fprintf(1,'\b%d / %d',ii,tocompute);
+            fprintf(1,'\r%d \t/ %d',ii,tocompute);
             
             % Preprocess
             in_subfolder = [in_folder '/' listing(ii).name];
@@ -30,7 +30,7 @@ switch listing(3).isdir
         mkdir(out_folder);
         for ii = 3:length(listing)
             % Display Progress
-            fprintf(1,'\b%d\t%d',ii,tocompute);
+            fprintf(1,'\r%d \t/ %d',ii,tocompute);
             
             % Preprocess
             in_image = imread([in_folder '/' listing(ii).name]);
