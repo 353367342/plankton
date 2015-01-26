@@ -18,7 +18,7 @@ function randomTransform(img,nTrans)
       image.hflip(imgBatch[i],imgBatch[i])
     elseif flip == 3 then
       image.vflip(imgBatch[i],imgBatch[i])
-    elseif flip == 4 then
+    elseif flip >= 4 then
       image.hflip(imgBatch[i],imgBatch[i])
       image.vflip(imgBatch[i],imgBatch[i])
     end  
