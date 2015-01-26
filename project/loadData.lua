@@ -1,5 +1,4 @@
 local lfs = require 'lfs'
---TODO: make it a module
 
 -- returns 2 arrays: fileNames, classMap
 -- only traverses 2 levels down
@@ -37,6 +36,7 @@ function readTrainFiles(path)
     return fileNames, classMap
 end
 
+-- returns array containing all the test data file paths relative to current directory
 function readTestFiles(path)
     --array that stores all the file names relative to current path
     local files = {}
@@ -50,8 +50,15 @@ function readTestFiles(path)
     return files
 end
 
--- table.getn(table)
--- ex. table.getn(fileNames) - will output the number of files
--- use image.load to actually load files
-
--- readFiles('/users/h/downloads/data_512/train')
+return {
+    readTrainFiles = readTrainFiles,
+    readTestFiles = readTestFiles
+}
+-- notes about require and table length
+-- ex for requiring in different directory: 
+-- require('project/loadData.lua')
+-- if in same directory can do: require 'loadData.lua'
+-- #table - # is the length operator
+-- ex. #fileNames - will output the number of files
+-- for torch, use image.load to actually load files
+-- readTrainFiles('/users/h/downloads/data_512/train')
