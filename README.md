@@ -1,1 +1,3 @@
 # plankton
+
+luarocks install luafilesystem
