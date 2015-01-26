@@ -17,12 +17,16 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 for i=1,512 do
+  local currentError = 0
   input = torch.randn(58,1,100,100):cuda()
   oHat = mdl:forward(input)
-  criterion:forward(oHat,output)
+  currentError = currentError + criterion:forward(oHat,output)
   mdl:zeroGradParameters()
   mdl:backward(input,criterion:backward(mdl.output,output))
   mdl:updateParameters(1e-3)
+  if i % 10 == 0 then
+    print('Batch:',i,'Error:',currentError/58)
+  end
   collectgarbage()
 end
 
