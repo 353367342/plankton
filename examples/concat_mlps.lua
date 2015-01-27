@@ -3,7 +3,7 @@ require 'cunn'
 require 'cutorch'
 require('../project/randTransform.lua')
 
-output = torch.CudaTensor(10):fill(1)
+output = torch.CudaTensor(15):fill(1)
 
 features = nn.Sequential()
 features:add(nn.SpatialConvolutionMM(1,10,7,7))
@@ -18,21 +18,28 @@ branch = {}
 
 branch[1] = nn.Sequential()
 branch[1]:add(nn.Linear(122*122,512))
+branch[1]:add(nn.Threshold(0,1e-6))
 branch[1]:add(nn.Linear(512,2))
-branch[1]:add(nn.LogSoftMax())
 
 branch[2] = nn.Sequential()
 branch[2]:add(nn.Linear(122*122,512))
-branch[2]:add(nn.Linear(512,2))
-branch[2]:add(nn.LogSoftMax())
+branch[2]:add(nn.Threshold(0,1e-6))
+branch[2]:add(nn.Linear(512,5))
+
+branch[3] = nn.Sequential()
+branch[3]:add(nn.Linear(122*122,512))
+branch[3]:add(nn.Threshold(0,1e-6))
+branch[3]:add(nn.Linear(512,2))
 
 dgraph = nn.Concat(2)
 dgraph:add(branch[1])
 dgraph:add(branch[2])
+dgraph:add(branch[3])
 
 mdl = nn.Sequential()
 mdl:add(features)
 mdl:add(dgraph)
+mdl:add(nn.LogSoftMax())
 mdl:cuda()
 
 criterion = nn.ClassNLLCriterion()
