@@ -1,20 +1,25 @@
 require 'nn'
 require 'cunn'
 require 'cutorch'
---require 'image'
---require('randTransform.lua')
+require 'image'
+require('randTransform.lua')
+
+fSize = {1,16,32,32}
+featuresOut = fSize[4]*28*28
+hiddenNodes = {512,256}
 
 features = nn.Sequential()
-features:add(nn.SpatialConvolutionMM(1,10,7,7))
+features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],9,9)) -- 512 - 9 + 1 = 504
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2))
-features:add(nn.SpatialConvolutionMM(10,1,10,10))
+features:add(nn.SpatialMaxPooling(4,4)) -- 126 
+features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],7,7)) -- 120
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 122,122
-features:add(nn.View(122*122))
+features:add(nn.SpatialMaxPooling(2,2)) -- 60
+features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],5,5)) -- 56 
+features:add(nn.Threshold(0,1e-6))
+features:add(nn.SpatialMaxPooling(2,2)) -- 28
+features:add(nn.View(featuresOut))
 
-featuresOut = 122*122
-hiddenNodes = {512, 256}
 
 -- 1-10
 protists = nn.Sequential()
@@ -183,10 +188,10 @@ mdl:add(nn.LogSoftMax())
 mdl:cuda()
 
 --output = torch.CudaTensor(10):fill(1)
-
+--
 --criterion = nn.ClassNLLCriterion()
 --criterion:cuda()
-
+--
 --for i=1,30 do
 --  local currentError = 0
 --  input = torch.randn(1,1,512,512)
@@ -201,5 +206,5 @@ mdl:cuda()
 --  end
 --  collectgarbage()
 --end
-
+--
 --print(torch.pow(10,oHat:float()))
