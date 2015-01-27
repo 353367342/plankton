@@ -15,9 +15,9 @@ criterion:cuda()
 batchSize = 10
 
 nModel = os.time()
-for epoch = 1,2 do
+for epoch = 1,10 do
   local ind = torch.randperm(#dataset)
-  for i=1,2 do
+  for i=1,#dataset do
     local currentError = 0
     local output = torch.CudaTensor(batchSize):fill(dataset[ind[i]].classNum)
     local input = image.load(dataset[ind[i]].relPath)
