@@ -5,7 +5,7 @@ require 'image'
 require('randTransform.lua')
 
 --fSize = {1,32,64,128}
-fSize = {1,16,32,32}
+fSize = {1,32,32,64}
 featuresOut = fSize[4]*11*11
 hiddenNodes = {512,256}
 

@@ -13,19 +13,19 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 augSize = 10
-miniBatchSize = 1
+miniBatchSize = 32
 
 splitInd = torch.randperm(#dataset)
 trainEnd = torch.floor(0.9*#dataset)
 valBegin = torch.floor(0.9*#dataset) + 1
 
 nModel = os.time()
-for epoch = 1,1 do
+for epoch = 1,50 do
 --   local ind = torch.randperm(trainEnd)
-   for i=1,torch.floor(trainEnd/miniBatchSize),miniBatchSize do
-    local miniBatchInd = splitInd:narrow(1,i,miniBatchSize)
+   for miniBatch=1,torch.floor(trainEnd/miniBatchSize)*miniBatchSize,miniBatchSize do
+    local miniBatchInd = splitInd:narrow(1,miniBatch,miniBatchSize)
     local currentError = 0
-    local output = torch.CudaTensor(augSize*miniBatchSize)
+    output = torch.CudaTensor(augSize*miniBatchSize)
     local input  = torch.CudaTensor(augSize*miniBatchSize,1,128,128)
     for j=1,miniBatchSize do
        local rawExample = image.load(dataset[miniBatchInd[j]].relPath)
@@ -33,22 +33,14 @@ for epoch = 1,1 do
        input[{{1 + (j-1)*augSize,j*augSize},{1,1},{1,128},{1,128}}] = augExample
        output:narrow(1,1 +(j-1)*augSize,augSize):fill(dataset[miniBatchInd[j]].classNum)
     end
-    local oHat = mdl:forward(input)
---    oHat = oHat:float()
---    output = output:float()
-    for j=1,miniBatchSize do
-      currentError = currentError + criterion:forward(oHat[j],output[j])
---      print(currentError)
-      local back = criterion:backward(oHat[j],output[j])
-      --print(back)
-      mdl:backward(input,back)
-      mdl:updateParameters(6e-5)
+    oHat = mdl:forward(input)
+    currentError = currentError + criterion:forward(oHat,output)
+    mdl:zeroGradParameters()
+    mdl:backward(input,criterion:backward(oHat,output))
+    mdl:updateParameters(0.1)
+    if (miniBatch - 1) % miniBatchSize == 0 then
+       print('# of unAugmented Examples:',miniBatch*augSize,'Error:',currentError)
     end
-    mdl:zeroGradParameters()    
-    if (i - 1) % miniBatchSize == 0 then
-       print('# of unAugmented Examples:',i*augSize,'Error:',currentError/augSize)
-    end
-    collectgarbage()
   end
   local valError = 0
   for i=valBegin,#dataset do
@@ -60,7 +52,7 @@ for epoch = 1,1 do
         local errStr = string.format('Epoch: %g, Cross Val Error: %g\n',epoch,valError/torch.floor(0.1*#dataset))
         print(errStr)
         local mdlErrFileName = string.format('models/model%d_epoch%g.err',nModel,epoch)
-        local errFile = io.open('mdlErrFileName','a')
+        local errFile = io.open(mdlErrFileName,'a')
         errFile:write(errStr)
         errFile:close()
      end
