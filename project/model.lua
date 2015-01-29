@@ -4,20 +4,21 @@ require 'cutorch'
 require 'image'
 require('randTransform.lua')
 
-fSize = {1,16,32,32}
-featuresOut = fSize[4]*28*28
+-- fSize = {1,16,32,32} -- trainable
+fSize = {1,128,256,256}
+featuresOut = fSize[4]*4*4
 hiddenNodes = {512,256}
 
 features = nn.Sequential()
-features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],9,9)) -- 512 - 9 + 1 = 504
+features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],10,10,2,2)) -- (128 - 10 + 2)/2 = 60
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(4,4)) -- 126 
-features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],7,7)) -- 120
+features:add(nn.SpatialMaxPooling(2,2,2,2)) -- 30
+features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],7,7)) -- 24
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 60
-features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],5,5)) -- 56 
+features:add(nn.SpatialMaxPooling(2,2,2,2)) -- 12
+features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],5,5)) -- 8 
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 28
+features:add(nn.SpatialMaxPooling(2,2,2,2)) -- 4
 features:add(nn.View(featuresOut))
 
 

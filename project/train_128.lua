@@ -12,16 +12,22 @@ dataset = readTrainFiles('../data/train_128')
 criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
-augSize = 10
-miniBatchSize = 32
+augSize = 1
+miniBatchSize = 16
 
 splitInd = torch.randperm(#dataset)
 trainEnd = torch.floor(0.9*#dataset)
 valBegin = torch.floor(0.9*#dataset) + 1
+--splitInd = torch.sort(splitInd)
+
+learningRate = 0.03
+learningDecay = 1e-7
 
 nModel = os.time()
-for epoch = 1,50 do
---   local ind = torch.randperm(trainEnd)
+for epoch = 1,100 do
+   --   local ind = torch.randperm(trainEnd)
+   learningRate = learningRate - learningDecay
+   mdl:training()
    for miniBatch=1,torch.floor(trainEnd/miniBatchSize)*miniBatchSize,miniBatchSize do
     local miniBatchInd = splitInd:narrow(1,miniBatch,miniBatchSize)
     local currentError = 0
@@ -37,11 +43,12 @@ for epoch = 1,50 do
     currentError = currentError + criterion:forward(oHat,output)
     mdl:zeroGradParameters()
     mdl:backward(input,criterion:backward(oHat,output))
-    mdl:updateParameters(0.1)
+    mdl:updateParameters(0.03)
     if (miniBatch - 1) % miniBatchSize == 0 then
        print('# of unAugmented Examples:',miniBatch*augSize,'Error:',currentError)
     end
-  end
+   end
+   mdl:evaluate()
   local valError = 0
   for i=valBegin,#dataset do
     local output = torch.CudaTensor(1):fill(dataset[splitInd[i]].classNum)
@@ -51,7 +58,7 @@ for epoch = 1,50 do
      if i == #dataset then
         local errStr = string.format('Epoch: %g, Cross Val Error: %g\n',epoch,valError/torch.floor(0.1*#dataset))
         print(errStr)
-        local mdlErrFileName = string.format('models/model%d_epoch%g.err',nModel,epoch)
+        local mdlErrFileName = string.format('models/model%d.err',nModel)
         local errFile = io.open(mdlErrFileName,'a')
         errFile:write(errStr)
         errFile:close()
