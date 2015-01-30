@@ -13,7 +13,7 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 augSize = 1
-miniBatchSize = 16
+miniBatchSize = 1
 
 splitInd = torch.randperm(#dataset)
 trainEnd = torch.floor(0.9*#dataset)
@@ -21,10 +21,10 @@ valBegin = torch.floor(0.9*#dataset) + 1
 --splitInd = torch.sort(splitInd)
 
 learningRate = 0.03
-learningDecay = 1e-7
+learningDecay = 1e-5
 
 nModel = os.time()
-for epoch = 1,100 do
+for epoch = 1,80 do
    --   local ind = torch.randperm(trainEnd)
    learningRate = learningRate - learningDecay
    mdl:training()
@@ -43,8 +43,8 @@ for epoch = 1,100 do
     currentError = currentError + criterion:forward(oHat,output)
     mdl:zeroGradParameters()
     mdl:backward(input,criterion:backward(oHat,output))
-    mdl:updateParameters(0.03)
-    if (miniBatch - 1) % miniBatchSize == 0 then
+    mdl:updateParameters(learningRate)
+    if (miniBatch - 1) % 20 == 0 then
        print('# of unAugmented Examples:',miniBatch*augSize,'Error:',currentError)
     end
    end
@@ -70,3 +70,8 @@ for epoch = 1,100 do
   -- mdlFile:writeObject(mdl:float())
   -- mdlFile:close()
 end
+  local mdlFileName = string.format('models/model%d_epoch%g.th',nModel,epoch)
+  local mdlFile = torch.DiskFile(mdlFileName,'w')
+  mdlFile:binary()
+  mdlFile:writeObject(mdl:float())
+  mdlFile:close()

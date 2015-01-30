@@ -1,14 +1,14 @@
 require 'nn'
 require 'cunn'
 require 'cutorch'
-require 'torch'
 require 'image'
 require('randTransform.lua')
 
---fSize = {1,128,128,200}
+--fSize = {1,16,16,32}
 fSize = {1,128,256,256}
 featuresOut = fSize[4]*4*4
 hiddenNodes = {512,256}
+--hiddenNodes = {64,32}
 
 features = nn.Sequential()
 features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],10,10,2,2)) -- (128 - 10 + 2)/2 = 60
@@ -222,6 +222,7 @@ mdl = nn.Sequential()
 mdl:add(features)
 mdl:add(dgraph)
 mdl:add(nn.LogSoftMax())
+mdl:cuda()
 
 --output = torch.CudaTensor(10):fill(1)
 --

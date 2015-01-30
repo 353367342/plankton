@@ -1,25 +1,25 @@
 require 'nn'
 require 'cunn'
 require 'cutorch'
-require 'torch'
 require 'image'
 require('randTransform.lua')
 
---fSize = {1,128,128,200}
+--fSize = {1,16,16,32}
 fSize = {1,128,256,256}
-featuresOut = fSize[4]*4*4
+featuresOut = fSize[4]*3*3
 hiddenNodes = {512,256}
+--hiddenNodes = {64,32}
 
 features = nn.Sequential()
-features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],10,10,2,2)) -- (128 - 10 + 2)/2 = 60
+features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],10,10,2,2)) -- (512 - 10 + 2)/2 = 252
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 30
-features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],7,7)) -- 24
+features:add(nn.SpatialMaxPooling(4,4)) -- 63
+features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],6,6,2,2)) -- (60 - 6 +2)/2 = 28
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 12
-features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],5,5)) -- 8 
+features:add(nn.SpatialMaxPooling(2,2)) -- 14
+features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],4,4,2,2)) -- (14 - 4+ 2)/2 = 6
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 4
+features:add(nn.SpatialMaxPooling(2,2)) -- 3
 features:add(nn.View(featuresOut))
 
 dropout_p = 0.5
@@ -222,6 +222,7 @@ mdl = nn.Sequential()
 mdl:add(features)
 mdl:add(dgraph)
 mdl:add(nn.LogSoftMax())
+mdl:cuda()
 
 --output = torch.CudaTensor(10):fill(1)
 --

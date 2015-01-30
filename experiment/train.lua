@@ -22,20 +22,32 @@ print '==> defining some tools'
 --    collectgarbage()
 -- end
 
+mdl:cuda()
+
+
 augSize = 1
 criterion = nn.ClassNLLCriterion()
+criterion:cuda()
 parameters,gradParameters = mdl:getParameters()
 epochSize = 10
-batchSize = 1
+batchSize = 16
 trainEnd = torch.floor(0.9*#dataset)
 print '==> configuring optimizer'
 
 optimState = {
-   learningRate = 0.05,
+   learningRate = 0.5,
    weightDecay = 1e-5,
-   momentum = 0.6,
+   momentum = 0.9,
    learningRateDecay = 5e-7
 }
+
+asgdSate = {
+   eta0 = 1,
+   lambda = 1e-3,
+   alpha = 1,
+   t0 = 1e5
+}
+
 optimMethod = optim.sgd
 
 print '==> defining training procedure'
@@ -52,67 +64,63 @@ splitInd = torch.randperm(#dataset)
 
 for t = 1,epochSize do
 
-    for miniBatch=1,torch.floor(trainEnd/batchSize)*batchSize,batchSize do
-        -- create mini batch
-        local output = torch.Tensor(augSize*batchSize)
-        local input  = torch.Tensor(augSize*batchSize,1,128,128)
-        local miniBatchInd = splitInd:narrow(1,miniBatch,batchSize)
-        for j=1,batchSize do
-           local rawExample = image.load(dataset[miniBatchInd[j]].relPath)
-           local augExample = randomTransform(rawExample[1],augSize)
-           input[{{1 + (j-1)*augSize,j*augSize},{1,1},{1,128},{1,128}}] = augExample
-           output:narow(1,1 +(j-1)*augSize,augSize):fill(dataset[miniBatchInd[j]].classNum)
-        end
+   for miniBatch=1,torch.floor(trainEnd/batchSize)*batchSize,batchSize do
+      -- create mini batch
+      local output = torch.CudaTensor(augSize*batchSize)
+      local input  = torch.CudaTensor(augSize*batchSize,1,128,128)
+      local miniBatchInd = splitInd:narrow(1,miniBatch,batchSize)
+      for j=1,batchSize do
+         local rawExample = image.load(dataset[miniBatchInd[j]].relPath)
+         local augExample = randomTransform(rawExample[1],augSize)
+         input[{{1 + (j-1)*augSize,j*augSize},{1,1},{1,128},{1,128}}] = augExample:cuda()
+         output:narrow(1,1 +(j-1)*augSize,augSize):fill(dataset[miniBatchInd[j]].classNum)
+      end
 
-        -- create closure to evaluate f(X) and df/dX
-        local feval = function(x)
-                        -- get new parameters
-                        if x ~= parameters then
-                            parameters:copy(x)
-                        end
+      -- create closure to evaluate f(X) and df/dX
+      local feval = function(x)
+         -- get new parameters
+         if x ~= parameters then
+            parameters:copy(x)
+         end
 
-                        -- reset gradients
-                        gradParameters:zero()
+         -- reset gradients
+         gradParameters:zero()
 
-                        -- f is the average of all criterions
-                        -- f same as currentError
-                        local f = 0;
+         -- f is the average of all criterions
+         -- f same as currentError
+         local f = 0;
 
-                        -- evaluate function for complete mini batch    
-                        -- estimate f
-                        local oHat = mdl:forward(input)
-                        --oHat = oHat:float()
-                        f = f + criterion:forward(oHat,output)
-                        mdl:backward(input,criterion:backward(oHat,output))
+         -- evaluate function for complete mini batch    
+         -- estimate f
+         local oHat = mdl:forward(input)
+         --oHat = oHat:float()
+         f = f + criterion:forward(oHat,output)
+         mdl:backward(input,criterion:backward(oHat,output))
 
-                        -- normalize gradients and f(X)
-                        gradParameters:div(batchSize)
-                        -- fgradParameters:mul(#branch)
-                        f = f/batchSize
+         -- normalize gradients and f(X)
+         -- gradParameters --:div(batchSize)
+         -- fgradParameters:mul(#branch)
+         --f = f --/batchSize
 
-                        if (miniBatch - 1) % batchSize == 0 then
-                           print('# of unAugmented Examples:',miniBatch*augSize,'Error:',f)
-                        end
+         if (miniBatch - 1) % batchSize == 0 then
+            print('# of unAugmented Examples:',miniBatch*augSize,'Error:',f)
+         end
 
-                        -- return f and df/dX
-                        return f,gradParameters
-                    end
+         -- return f and df/dX
+         return f,gradParameters
+      end
 
-          -- optimize on current mini-batch
-          optim.sgd(feval, parameters, optimState)
-          --collectgarbage()
-        end
+      -- optimize on current mini-batch
+      optim.sgd(feval, parameters, optimState)
+--      optim.asgd(feval,parameters,asgdState)
+      collectgarbage()
+   end
 
-       -- time taken
-       -- time = sys.clock() - time
-       -- time = time / epochSize
-       -- print("<trainer> time to learn 1 sample = " .. (time*1000) .. 'ms')
+   -- time taken
+   -- time = sys.clock() - time
+   -- time = time / epochSize
+   -- print("<trainer> time to learn 1 sample = " .. (time*1000) .. 'ms')
 
-       -- local rMSE = math.sqrt(tMSE / (epochSize))
-       -- print('epoch: ' .. epoch .. ' + rMSE (train set) : ', rMSE)
-       -- print('')
-       -- print('')
-       -- trainLogger:add{['rMSE (train set)'] = rMSE}
-    end
+end
 end
 train()
