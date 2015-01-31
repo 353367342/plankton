@@ -150,7 +150,6 @@ function readTrainFiles(path)
                         fileNames[imageCounter].classNum = classesToNum[dir]
                         fileNames[imageCounter].className = dir
                         fileNames[imageCounter].relPath = d..'/'..image
-                        fileNames[imageCounter].name = image
                         imageCounter = imageCounter + 1
                     end
                 end
@@ -166,7 +165,9 @@ function readTestFiles(path)
     local counter = 1
     for image in lfs.dir(path) do
         if image ~= "." and image ~= ".." then
-            files[counter] = path..'/'..image
+            files[counter] = {}
+            files[counter].relPath = path..'/'..image
+            files[counter].name = image
             counter = counter + 1
         end
     end
