@@ -16,16 +16,20 @@ end
 sampleSize = {1,96,96}
 batchSize = 32
 valBatchSize = 128
+testBatchSize = 100
 augSize = 1
 epoch = 1
 epochSize = 30e3/batchSize/augSize
 nEpochs = 500
 nModel = os.time()
 
+
 dataset = readTrainFiles('../data/raw/train_96ht')
+manualSeed(22)
 splitInd = torch.randperm(#dataset)
 trainEnd = torch.floor(0.9*#dataset)
 valBegin = trainEnd + 1
+seed()
 
 confusion = optim.ConfusionMatrix(121)
 --mdl = torch.load('models/model1422657128_epoch117.th')
@@ -41,6 +45,10 @@ for epoch = 1,nEpochs do
       fileName = string.format('models/model%d_epoch%g.th',nModel,epoch)
       torch.save(fileName, mdl)
       os.remove('save')
+   end
+   if file_exist('test') then
+      dofile('test.lua')
+      os.remove('test')
    end
 end
 
