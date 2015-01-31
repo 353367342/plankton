@@ -150,6 +150,7 @@ function readTrainFiles(path)
                         fileNames[imageCounter].classNum = classesToNum[dir]
                         fileNames[imageCounter].className = dir
                         fileNames[imageCounter].relPath = d..'/'..image
+                        fileNames[imageCounter].name = image
                         imageCounter = imageCounter + 1
                     end
                 end
