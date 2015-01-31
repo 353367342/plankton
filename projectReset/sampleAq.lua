@@ -11,8 +11,9 @@ function getTrainSample()
    return batch, targets
    end
 
-function getCrValSample()
-   local sampleList = torch.randperm(#dataset - trainEnd -1):narrow(1,1,valBatchSize):add(valBegin)
+function getCrValSample(n)
+--      local sampleList = torch.randperm(#dataset - trainEnd -1):narrow(1,1,valBatchSize):add(valBegin)
+   local sampleList = splitInd[{{valBegin,#dataset}}]:narrow(1,1 + (n-1)*valBatchSize,valBatchSize)
    local batch = torch.CudaTensor(valBatchSize,sampleSize[1],sampleSize[2],sampleSize[3])
    local targets = torch.CudaTensor(valBatchSize)
    for j=1,valBatchSize do

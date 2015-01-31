@@ -5,8 +5,7 @@ print '==> defining some tools'
 mdl:cuda()
 mdl:training()
 
-criterion = nn.ClassNLLCriterion()
-criterion:cuda()
+
 parameters,gradParameters = mdl:getParameters()
 print '==> configuring optimizer'
 

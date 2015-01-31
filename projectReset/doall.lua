@@ -27,7 +27,12 @@ splitInd = torch.randperm(#dataset)
 trainEnd = torch.floor(0.9*#dataset)
 valBegin = trainEnd + 1
 
+confusion = optim.ConfusionMatrix(121)
+--mdl = torch.load('models/model1422657128_epoch117.th')
 dofile('model_96.lua')
+
+criterion = nn.ClassNLLCriterion()
+criterion:cuda()
 
 for epoch = 1,nEpochs do
    dofile('train.lua')
