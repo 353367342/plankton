@@ -26,12 +26,13 @@ function getCrValSample(n)
 end
 
 function getTestSample(n)
-   local sampleList = testSet[{{valBegin,#dataset}}]:narrow(1,1 + (n-1)*valBatchSize,valBatchSize)
-   local batch = torch.CudaTensor(valBatchSize,sampleSize[1],sampleSize[2],sampleSize[3])
-   for j=1,valBatchSize do
+   local batch = torch.CudaTensor(testBatchSize,sampleSize[1],sampleSize[2],sampleSize[3])
+   local imId = {}
+   for j=1,testBatchSize do
       local testExample = torch.CudaTensor(1,3,sampleSize[2],sampleSize[3])
-      testExample[{{1,1},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = image.load(dataset[splitInd[sampleList[j]]].relPath)
-      batch[{{1 + (j-1),j},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = rawExample[1]:resize(1,sampleSize[1],sampleSize[2],sampleSize[3])
+      testExample[{{1,1},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = image.load(testset[(n-1)*testBatchSize + j].relPath)
+      imId[j] = testset[(n-1)*testBatchSize + j].name
+      batch[{{j,j},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = testExample[1]:resize(1,sampleSize[1],sampleSize[2],sampleSize[3])
    end
-   return batch
+   return batch, imId
    end

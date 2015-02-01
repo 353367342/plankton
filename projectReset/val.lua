@@ -1,6 +1,6 @@
 mdl:evaluate()
 local valError = 0
-local valSize = torch.floor(0.1*#dataset/valBatchSize)
+local valSize = torch.floor(0.02*#dataset/valBatchSize)
 local time = sys.clock()
 for i=1,valSize do
    local batch, targets = getCrValSample(i)
