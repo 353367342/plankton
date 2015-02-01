@@ -7,6 +7,7 @@ require 'optim'
 require('loadData.lua')
 require('randTransform.lua')
 require('sampleAq.lua')
+require('writeData.lua')
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -25,32 +26,36 @@ nModel = os.time()
 
 
 dataset = readTrainFiles('../data/raw/train_96ht')
-manualSeed(22)
+torch.manualSeed(22)
 splitInd = torch.randperm(#dataset)
-trainEnd = torch.floor(0.9*#dataset)
+trainEnd = torch.floor(0.98*#dataset)
 valBegin = trainEnd + 1
-seed()
+torch.seed()
 
 confusion = optim.ConfusionMatrix(121)
---mdl = torch.load('models/model1422657128_epoch117.th')
-dofile('model_96.lua')
+mdl = torch.load('models/model1422714991_epoch129.th')
+--mdl:cuda()
+--mdl:evaluate()
+--dofile('model_96.lua')
 
 criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 for epoch = 1,nEpochs do
    dofile('train.lua')
+   mdl_last = mdl:clone():float()
    dofile('val.lua')
    if file_exists('save') then
-      fileName = string.format('models/model%d_epoch%g.th',nModel,epoch)
-      torch.save(fileName, mdl)
+      fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
+      torch.save(fileName, mdl_last)
       os.remove('save')
    end
-   if file_exist('test') then
+   
+   if file_exists('test') then
+      testset = readTestFiles('/tmp/test_96')
       dofile('test.lua')
       os.remove('test')
    end
 end
-
-fileName = string.format('models/model%d_epoch%g.th',nModel,epoch)
-torch.save(fileName, mdl)
+-- fileName = string.format('models/model%d_epoch%g.th',nModel,epoch)
+-- torch.save(fileName, mdl)

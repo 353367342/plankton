@@ -11,7 +11,7 @@ print '==> configuring optimizer'
 
 --- sgd test params
  optimState = {
-    learningRate = 0.1,
+    learningRate = 1e-5,
     weightDecay = 1e-5,
     momentum = 0.6,
     learningRateDecay = 5e-4
@@ -52,7 +52,7 @@ for t = 1,epochSize do
             print('# of Examples:',t*batchSize*augSize,'Error:',f)
             return f,gradParameters
       end
-      optim.sgd(feval, parameters, optimState)
+      optim.adagrad(feval, parameters, optimState)
       collectgarbage()
    end
    -- time taken
