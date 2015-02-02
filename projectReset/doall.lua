@@ -8,35 +8,43 @@ require('loadData.lua')
 require('randTransform.lua')
 require('sampleAq.lua')
 require('writeData.lua')
+require('jitter')
 
 function file_exists(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
 end
 
+loadSize = {1,108,108}
 sampleSize = {1,96,96}
 batchSize = 32
-valBatchSize = 128
-testBatchSize = 100
+valBatchSize = 64
+testBatchSize = 50
 augSize = 1
 epoch = 1
 epochSize = 30e3/batchSize/augSize
 nEpochs = 500
 nModel = os.time()
 
+optimState = {
+    learningRate = 0.03, -- 1e-3, --0.03,
+    weightDecay = 1e-5,
+    momentum = 0.6,
+    learningRateDecay = 5e-4
+}
 
-dataset = readTrainFiles('../data/raw/train_96ht')
-torch.manualSeed(22)
+dataset = readTrainFiles('/tmp/train_108gt')
+torch.manualSeed(25)
 splitInd = torch.randperm(#dataset)
-trainEnd = torch.floor(0.98*#dataset)
-valBegin = trainEnd + 1
+trainEnd = torch.floor(1.0*#dataset)
+--valBegin = trainEnd + 1
 torch.seed()
 
 confusion = optim.ConfusionMatrix(121)
-mdl = torch.load('models/model1422714991_epoch129.th')
+--mdl = torch.load('models/model1422714991_epoch129.th')
 --mdl:cuda()
 --mdl:evaluate()
---dofile('model_96.lua')
+dofile('model_96.lua')
 
 criterion = nn.ClassNLLCriterion()
 criterion:cuda()
@@ -44,7 +52,7 @@ criterion:cuda()
 for epoch = 1,nEpochs do
    dofile('train.lua')
    mdl_last = mdl:clone():float()
-   dofile('val.lua')
+   --dofile('val.lua')
    if file_exists('save') then
       fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
       torch.save(fileName, mdl_last)
@@ -52,7 +60,7 @@ for epoch = 1,nEpochs do
    end
    
    if file_exists('test') then
-      testset = readTestFiles('/tmp/test_96')
+      testset = readTestFiles('/tmp/test_108gt')
       dofile('test.lua')
       os.remove('test')
    end

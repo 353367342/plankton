@@ -5,28 +5,21 @@ require 'image'
 require('randTransform.lua')
 
 --fSize = {1,16,16,32}
-fSize = {1,256,256,256,512}
-featuresOut = fSize[5]*2*2
+fSize = {1,128,256,256}
+featuresOut = fSize[4]*3*3
 hiddenNodes = {512,256}
 --hiddenNodes = {64,32}
 
 features = nn.Sequential()
-features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],2,2,2,2)) -- (96 - 2 + 2)/2 = 48
+features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],10,10,2,2)) -- (96 - 10 + 2)/2 = 44
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.ReLU())
-features:add(nn.SpatialMaxPooling(2,2)) -- 24
-features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],3,3)) -- 22
+features:add(nn.SpatialMaxPooling(2,2)) -- 22
+features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],7,7)) -- 16
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.ReLU())
-features:add(nn.SpatialMaxPooling(2,2)) -- 11
-features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],4,4)) -- 8 
+features:add(nn.SpatialMaxPooling(2,2)) -- 8
+features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],3,3)) -- 6 
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.ReLU())
-features:add(nn.SpatialMaxPooling(2,2)) -- 4
-features:add(nn.SpatialConvolutionMM(fSize[4],fSize[5],3,3)) -- 2 
-features:add(nn.Threshold(0,1e-6))
-features:add(nn.ReLU())
---features:add(nn.SpatialMaxPooling(2,2)) -- 1
+features:add(nn.SpatialMaxPooling(2,2)) -- 3
 features:add(nn.View(featuresOut))
 
 dropout_p = 0.5

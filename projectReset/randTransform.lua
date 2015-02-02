@@ -6,7 +6,7 @@ function randomTransform(img,nTrans)
   local imgBatch = torch.Tensor(nTrans,1,imgDim[1],imgDim[2])
 --  img = image.lcn(img)
   for i = 1,nTrans do
-    local ang = 360
+    local ang = 6.28
     local angle = torch.uniform(0,ang)
     image.rotate(imgBatch[i],img,angle)
 

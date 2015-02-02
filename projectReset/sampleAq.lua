@@ -4,7 +4,8 @@ function getTrainSample()
    local targets = torch.CudaTensor(augSize*batchSize)
    for j=1,batchSize do
       local rawExample = image.load(dataset[splitInd[sampleList[j]]].relPath)
-      local augExample   = randomTransform(rawExample[1],augSize)
+      --      local augExample   = randomTransform(rawExample[1],augSize)
+      local augExample = jitter(rawExample)
       batch[{{1 + (j-1)*augSize,j*augSize},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = augExample
       targets:narrow(1,1 +(j-1)*augSize,augSize):fill(dataset[splitInd[sampleList[j]]].classNum)
    end
