@@ -1,4 +1,6 @@
 local lfs = require 'lfs'
+local torch = require 'torch'
+
 local classesToNum = { 
     acantharia_protist= 1,
     acantharia_protist_big_center= 2,
@@ -123,6 +125,12 @@ local classesToNum = {
     artifacts_edge= 121
 }
 
+function setValue(arr, index, d, dir, image)
+    arr[index] = {}
+    arr[index].classNum = classesToNum[dir]
+    arr[index].className = dir
+    arr[index].relPath = d..'/'..image
+end
 
 -- RETURNS array of tables storing the following:
     -- classNum: array index for the given class name see classesToNum table above
@@ -140,16 +148,14 @@ function readTrainFiles(path)
         if dir ~= "." and dir ~= ".." then
             if string.match(dir, '-') then
                 print 'Rename shrimp-like_other directory to shrimp_like_other!'
+                return
             end
             local d = path..'/'..dir
             local attr = lfs.attributes (d)
             if attr.mode == "directory" then
                 for image in lfs.dir(d) do
                     if image ~= "." and image ~= ".." then
-                        fileNames[imageCounter] = {}
-                        fileNames[imageCounter].classNum = classesToNum[dir]
-                        fileNames[imageCounter].className = dir
-                        fileNames[imageCounter].relPath = d..'/'..image
+                        setValue(fileNames, imageCounter, d, dir, image)
                         imageCounter = imageCounter + 1
                     end
                 end
@@ -157,6 +163,56 @@ function readTrainFiles(path)
         end
     end
     return fileNames
+end
+
+-- pct is percent of set for cross val
+function readTrainAndCrossValFiles(path, pct)
+    local trainFiles = {}
+    local crossValFiles = {}
+    local trainCounter = 1
+    local crossValCounter = 1
+    local categoryStartCounter = 0 --actually category start index - 1
+    local categoryEndCounter = 0
+
+    for dir in lfs.dir(path) do -- iterate through train directory (contains classNames)
+        if dir ~= "." and dir ~= ".." then
+            if string.match(dir, '-') then
+                print 'Rename shrimp-like_other directory to shrimp_like_other!'
+                return
+            end
+            local d = path..'/'..dir
+            local attr = lfs.attributes (d)
+            if attr.mode == "directory" then
+                --count num files in dir
+                for image in lfs.dir(d) do
+                    if image ~= "." and image ~= ".." then
+                        categoryEndCounter = categoryEndCounter + 1
+                    end
+                end
+                local counter = 1
+                local randomPermCounter = 1
+                local catNumEl = categoryEndCounter-categoryStartCounter
+                local randomPerm = torch.randperm(catNumEl):narrow(1,1,math.ceil(catNumEl/pct))
+                randomPerm = torch.sort(randomPerm)
+                local randomPermSize = randomPerm:size(1)
+                for image in lfs.dir(d) do
+                    if image ~= "." and image ~=".." then
+                        if (randomPermCounter <= randomPermSize) and (counter == randomPerm[randomPermCounter]) then
+                            randomPermCounter = randomPermCounter + 1
+                            setValue(crossValFiles, crossValCounter, d, dir, image)
+                            crossValCounter = crossValCounter + 1
+                        else
+                            setValue(trainFiles, trainCounter, d, dir, image)
+                            trainCounter = trainCounter + 1
+                        end
+                        counter = counter + 1
+                    end
+                end
+                categoryStartCounter = categoryEndCounter;
+            end
+        end
+    end
+    return trainFiles, crossValFiles
 end
 
 -- returns array containing all the test data file paths relative to current directory
@@ -176,6 +232,7 @@ end
 
 return {
     readTrainFiles = readTrainFiles,
+    readTrainAndCrossValFiles = readTrainAndCrossValFiles,
     readTestFiles = readTestFiles,
     classesToNum = classesToNum
 }
