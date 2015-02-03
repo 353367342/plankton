@@ -192,7 +192,7 @@ function readTrainAndCrossValFiles(path, pct)
                 local counter = 1
                 local randomPermCounter = 1
                 local catNumEl = categoryEndCounter-categoryStartCounter
-                local randomPerm = torch.randperm(catNumEl):narrow(1,1,math.ceil(catNumEl/pct))
+                local randomPerm = torch.randperm(catNumEl):narrow(1,1,math.ceil(catNumEl*(pct/100)))
                 randomPerm = torch.sort(randomPerm)
                 local randomPermSize = randomPerm:size(1)
                 for image in lfs.dir(d) do
