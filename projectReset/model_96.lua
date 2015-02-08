@@ -6,20 +6,20 @@ require('randTransform.lua')
 
 --fSize = {1,16,16,32}
 fSize = {1,128,256,256}
-featuresOut = fSize[4]*3*3
+featuresOut = fSize[4]*1*1
 hiddenNodes = {512,256}
 --hiddenNodes = {64,32}
 
 features = nn.Sequential()
-features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],10,10,2,2)) -- (96 - 10 + 2)/2 = 44
+features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],11,11,5,5)) -- 96 - 11 + 5 / 5
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 22
-features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],7,7)) -- 16
+features:add(nn.SpatialMaxPooling(3,3)) -- 6
+features:add(nn.SpatialConvolutionMM(fSize[2],fSize[3],3,3)) -- 4
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 8
-features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],3,3)) -- 6 
+--features:add(nn.SpatialMaxPooling(2,2)) -- 2
+features:add(nn.SpatialConvolutionMM(fSize[3],fSize[4],3,3)) -- 1 
 features:add(nn.Threshold(0,1e-6))
-features:add(nn.SpatialMaxPooling(2,2)) -- 3
+--features:add(nn.SpatialMaxPooling(2,2)) -- 3
 features:add(nn.View(featuresOut))
 
 dropout_p = 0.5
@@ -221,6 +221,8 @@ dgraph:add(unknownOrArtifacts)
 mdl = nn.Sequential()
 mdl:add(features)
 mdl:add(dgraph)
+--mdl:add(nn.Linear(featuresOut,1024))
+--mdl:add(nn.Linear(1024,121))
 mdl:add(nn.LogSoftMax())
 mdl:cuda()
 

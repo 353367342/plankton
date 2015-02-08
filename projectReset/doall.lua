@@ -4,66 +4,86 @@ require 'lfs'
 require 'cutorch'
 require 'cunn'
 require 'optim'
+require 'gnuplot'
 require('loadData.lua')
 require('randTransform.lua')
 require('sampleAq.lua')
 require('writeData.lua')
 require('jitter')
+require('shareTrans')
 
 function file_exists(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
 end
 
-loadSize = {1,108,108}
-sampleSize = {1,96,96}
+loadSize = {1,128,128}
+sampleSize = {1,120,120}
+
 batchSize = 32
 valBatchSize = 64
 testBatchSize = 50
+
 augSize = 1
 epoch = 1
 epochSize = 30e3/batchSize/augSize
-nEpochs = 500
+nEpochs = 10000
+cvError = torch.Tensor(nEpochs)
 nModel = os.time()
+confusion = optim.ConfusionMatrix(121)
+criterion = nn.ClassNLLCriterion()
+criterion:cuda()
 
 optimState = {
-    learningRate = 0.03, -- 1e-3, --0.03,
-    weightDecay = 1e-5,
+    learningRate = 0.1, -- 1e-3, --0.03,
+    weightDecay = 1e-5, -- play with
     momentum = 0.6,
     learningRateDecay = 5e-4
 }
 
-dataset = readTrainFiles('/tmp/train_108gt')
-torch.manualSeed(25)
-splitInd = torch.randperm(#dataset)
-trainEnd = torch.floor(1.0*#dataset)
---valBegin = trainEnd + 1
-torch.seed()
+optimMethod = optim.sgd
 
-confusion = optim.ConfusionMatrix(121)
+--logFileName = string.format('models/model%d.log',nModel)
+--logger = optim.Logger(logFileName)
+--logger:style{'-', '-'}
+
+trainSet, valSet = readTrainAndCrossValFiles('/mnt/plankton_data/train_128gthn/',9)
+
 --mdl = torch.load('models/model1422714991_epoch129.th')
 --mdl:cuda()
 --mdl:evaluate()
-dofile('model_96.lua')
 
-criterion = nn.ClassNLLCriterion()
-criterion:cuda()
+dofile('model.lua') -- ?
+
+--share = true
 
 for epoch = 1,nEpochs do
-   dofile('train.lua')
-   mdl_last = mdl:clone():float()
-   --dofile('val.lua')
-   if file_exists('save') then
-      fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
-      torch.save(fileName, mdl_last)
-      os.remove('save')
-   end
-   
-   if file_exists('test') then
-      testset = readTestFiles('/tmp/test_108gt')
-      dofile('test.lua')
-      os.remove('test')
-   end
+    confusion:zero()
+    dofile('train.lua')
+    dofile('val.lua')
+    gnuplot.plot(cvError[{{1,epoch}}])
+    gnuplot.axis({1,epoch+100,0.5,5})
+--    logger:plot()
+    torch.save('confusionMat.th',confusion)
+    mdl_last = mdl:clone():float()
+    
+    if file_exists('save') then
+        fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
+        torch.save(fileName, mdl_last)
+        os.remove('save')
+    end
+
+    if file_exists('test') then
+        testset = readTestFiles('/mnt/plankton_data/test_108gt')
+        dofile('test.lua')
+        os.remove('test')
+    end
+
+    if file_exists('break') then
+        os.remove('break')
+        break
+    end
 end
--- fileName = string.format('models/model%d_epoch%g.th',nModel,epoch)
--- torch.save(fileName, mdl)
+
+-- -- fileName = string.format('models/model%d_epoch%g.th',nModel,epoch)
+-- -- torch.save(fileName, mdl)
