@@ -11,6 +11,7 @@ require('sampleAq.lua')
 require('writeData.lua')
 require('jitter')
 require('shareTrans')
+require('inception')
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -21,8 +22,8 @@ loadSize = {1,128,128}
 sampleSize = {1,120,120}
 
 batchSize = 32
-valBatchSize = 64
-testBatchSize = 50
+valBatchSize = 32
+testBatchSize = 32
 
 augSize = 1
 epoch = 1
@@ -37,7 +38,7 @@ criterion:cuda()
 optimState = {
     learningRate = 0.1, -- 1e-3, --0.03,
     weightDecay = 1e-5, -- play with
-    momentum = 0.6,
+    momentum = 0.9,
     learningRateDecay = 5e-4
 }
 
@@ -53,7 +54,7 @@ trainSet, valSet = readTrainAndCrossValFiles('/mnt/plankton_data/train_128gthn/'
 --mdl:cuda()
 --mdl:evaluate()
 
-dofile('model.lua') -- ?
+dofile('model_deepIncep.lua') -- ?
 
 --share = true
 
@@ -61,24 +62,21 @@ for epoch = 1,nEpochs do
     confusion:zero()
     dofile('train.lua')
     dofile('val.lua')
-    gnuplot.plot(cvError[{{1,epoch}}])
+    gnuplot.plot(cvError[{{1,epoch}}],'-')
     gnuplot.axis({1,epoch+100,0.5,5})
 --    logger:plot()
-    torch.save('confusionMat.th',confusion)
-    mdl_last = mdl:clone():float()
-    
+--    torch.save('confusionMat.th',confusion)
+--    mdl_last = mdl:clone():float()
     if file_exists('save') then
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
         torch.save(fileName, mdl_last)
         os.remove('save')
     end
-
     if file_exists('test') then
-        testset = readTestFiles('/mnt/plankton_data/test_108gt')
+        testset = readTestFiles('/mnt/plankton_data/test_128gthn')
         dofile('test.lua')
         os.remove('test')
     end
-
     if file_exists('break') then
         os.remove('break')
         break

@@ -9,7 +9,7 @@ for i=1,valSize do
    end
    local oHat = mdl:forward(batch)
    valError = valError + criterion:forward(oHat,targets)
-   confusion:batchAdd(oHat:float(),targets:float())
+--   confusion:batchAdd(oHat:float(),targets:float())
    if i == valSize then
       cvError[epoch] = valError/valSize
 --      logger:add{valError/valSize}
