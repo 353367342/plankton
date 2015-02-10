@@ -37,13 +37,15 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 0.01, -- 1e-3, --0.03,
-    weightDecay = 1e-5, -- play with
-    momentum = 0.1,
-    learningRateDecay = 5e-4
+    learningRate = 0.03, -- 1e-3, --0.03,
+    weightDecay = 1e-4, -- play with
+    momentum = 0.9,
+    learningRateDecay = 5e-4,
+    dampening = 0,
+    nesterov = true
 }
 
-optimMethod = optim.adagrad
+optimMethod = optim.nag
 
 trainSet, valSet = readTrainAndCrossValFiles('/mnt/plankton_data/train_128gthn/',9)
 
