@@ -12,6 +12,7 @@ require('writeData.lua')
 require('jitter')
 require('shareTrans')
 require('inception')
+require('ensembleBranch.lua')
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -36,17 +37,13 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 0.1, -- 1e-3, --0.03,
+    learningRate = 0.01, -- 1e-3, --0.03,
     weightDecay = 1e-5, -- play with
-    momentum = 0.9,
+    momentum = 0.1,
     learningRateDecay = 5e-4
 }
 
-optimMethod = optim.sgd
-
---logFileName = string.format('models/model%d.log',nModel)
---logger = optim.Logger(logFileName)
---logger:style{'-', '-'}
+optimMethod = optim.adagrad
 
 trainSet, valSet = readTrainAndCrossValFiles('/mnt/plankton_data/train_128gthn/',9)
 
@@ -54,7 +51,7 @@ trainSet, valSet = readTrainAndCrossValFiles('/mnt/plankton_data/train_128gthn/'
 --mdl:cuda()
 --mdl:evaluate()
 
-dofile('model_deepIncep.lua') -- ?
+dofile('model_ultraIncep.lua') -- ?
 
 --share = true
 
@@ -64,7 +61,6 @@ for epoch = 1,nEpochs do
     dofile('val.lua')
     gnuplot.plot(cvError[{{1,epoch}}],'-')
     gnuplot.axis({1,epoch+100,0.5,5})
---    logger:plot()
 --    torch.save('confusionMat.th',confusion)
 --    mdl_last = mdl:clone():float()
     if file_exists('save') then

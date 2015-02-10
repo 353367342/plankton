@@ -45,7 +45,7 @@ features[4]:add(nn.SpatialAveragePooling(6,6))
 features[4]:add(nn.Dropout(0.4))
 features[4]:add(nn.View(1024))
 features[4]:add(nn.Linear(1024,121))
-features[4]:add(nn.LogSoftMax())
+features[4]:add(nn.SoftMax())
 features[4]:cuda()
 depthConcat2:add(features[4])
 depthConcat2:cuda()
@@ -56,7 +56,9 @@ mdl:add(depthConcat1)
 
 mdl:add(nn.View(3,121))
 mdl:add(nn.SpatialAveragePooling(1,3):cuda())
+--mdl:add(nn.Mul(1/3):cuda())
 mdl:add(nn.View(121))
+mdl:add(nn.LogSoftMax():cuda())
 
 --need to repmat output x3
 --output should be 363

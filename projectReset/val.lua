@@ -12,7 +12,6 @@ for i=1,valSize do
 --   confusion:batchAdd(oHat:float(),targets:float())
    if i == valSize then
       cvError[epoch] = valError/valSize
---      logger:add{valError/valSize}
       local errStr = string.format(' Cross Val Error: %g\n',valError/valSize)
       print(errStr)
       local mdlErrFileName = string.format('models/model%d.err',nModel)

@@ -2,9 +2,7 @@
 print '==> train.lua'
 print '==> defining some tools'
 
-mdl:cuda()
 mdl:training()
-
 
 parameters,gradParameters = mdl:getParameters()
 print '==> configuring optimizer'
