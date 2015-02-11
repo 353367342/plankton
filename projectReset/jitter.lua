@@ -10,7 +10,7 @@ function jitter(s)
    end
    -- rotation
    if d[3] > 0.5 then
-      s = image.rotate(s, math.pi * d[4])
+      s = image.rotate(s, math.pi * d[4],'bilinear')
 --      s[torch.eq(s,0)] = 1
    end
    -- crop a 0.9 to 1.1 sized random patch and resize it to 128
@@ -23,7 +23,7 @@ function jitter(s)
       local endY = startY + size[3]
       s = image.crop(s, startX, startY, endX, endY)
       -- now rescale it to sampleSize
-      s = image.scale(s, sampleSize[2], sampleSize[3])
+      s = image.scale(s, sampleSize[2], sampleSize[3],'bilinear')
    else
       -- crop a sampleSize[2]xsampleSize[3] random patch
       local startX = math.ceil(d[6] * 5)

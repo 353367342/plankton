@@ -6,7 +6,12 @@ function getTrainSample()
       local rawExample = image.load(trainSet[sampleList[j]].relPath)
       --      local augExample   = randomTransform(rawExample[1],augSize)
       --local augExample = image.scale(rawExample,sampleSize[2],sampleSize[3]):resize(1,sampleSize[1],sampleSize[2],sampleSize[3])  
-      local augExample = jitter(rawExample)
+--      if epoch > 20 then
+         local augExample = jitter(rawExample)
+--      else
+--         augExample = image.scale(rawExample, sampleSize[2], sampleSize[3])
+--         augExample = augExample:resize(1,sampleSize[1],sampleSize[2],sampleSize[3])
+--      end
       batch[{{1 + (j-1)*augSize,j*augSize},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = augExample
       targets:narrow(1,1 +(j-1)*augSize,augSize):fill(trainSet[sampleList[j]].classNum)
    end
@@ -29,6 +34,17 @@ function getCrValSample(n)
    return batch, targets
 end
 
+function getAugCrValSample(n)
+   local batch = torch.CudaTensor(valAugSize,sampleSize[1],sampleSize[2],sampleSize[3])
+   local targets = torch.CudaTensor(valAugSize)
+   local img = image.load(valSet[n].relPath)
+   for j=1,valAugSize do
+      batch[{{1 + (j-1),j},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = jitter(img):cuda()
+      targets:narrow(1,1 +(j-1),1):fill(valSet[n].classNum)
+   end
+   return batch, targets
+end
+
 function getTestSample(n)
    local batch = torch.CudaTensor(testBatchSize,sampleSize[1],sampleSize[2],sampleSize[3])
    local imId = {}
@@ -39,4 +55,15 @@ function getTestSample(n)
       batch[{{j,j},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = testExample[1]:resize(1,sampleSize[1],sampleSize[2],sampleSize[3])
    end
    return batch, imId
+end
+
+function getAugTestSample(n)
+   local batch = torch.CudaTensor(testAugSize,sampleSize[1],sampleSize[2],sampleSize[3])
+   local imId = {}
+   local img = image.load(testset[n].relPath)
+   for j=1,testAugSize do
+      imId[j] = testset[n].name
+      batch[{{j,j},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = jitter(img):cuda() --testExample
    end
+   return batch, imId
+end

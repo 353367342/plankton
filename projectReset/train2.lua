@@ -28,18 +28,25 @@ for t = 1,epochSize do
             parameters:copy(x)
          end
          gradParameters:zero()
-         local f = 0;
          local oHat = mdl:forward(batch)
-         f = f + criterion:forward(oHat,targets)
-         mdl:backward(batch,criterion:backward(oHat,targets)) --problem line
-         --confusion:batchAdd(oHat:float(),targets:float())
-	 epochError = epochError + f
-            print('# of Examples:',t*batchSize*augSize,'Error:',f)
-            return f,gradParameters
+         oHat = oHat:reshape(batchSize,3,121)
+         local f = {0,0,0}
+         local grad = {}
+         gradAcc = torch.CudaTensor(32,3*121)
+         local w = {0.3,0.3,1}
+         for aux = 1,3 do
+            f[aux] = f[aux] + criterion:forward(oHat[{{1,32},{aux,aux},{1,121}}]:reshape(32,121),targets)
+            grad[aux] = criterion:backward(oHat[{{1,32},{aux,aux},{1,121}}]:reshape(32,121),targets)
+            gradAcc[{{1,32},{1 + (aux-1)*121,121 + (aux-1)*121}}] = grad[aux]:mul(w[aux])
+         end
+         mdl:backward(batch,gradAcc) --problem line
+         epochError = epochError + f[3]
+         print('# of Examples:',t*batchSize*augSize,'Error:',f)
+         return f,gradParameters
       end
       optimMethod(feval, parameters, optimState)
       collectgarbage()
-   end
+end
    -- time taken
 time = sys.clock() - time
 print("<trainer> time for 1 Epoch = " .. (time) .. 's')

@@ -10,9 +10,10 @@ require('randTransform.lua')
 require('sampleAq.lua')
 require('writeData.lua')
 require('jitter')
-require('shareTrans')
 require('inception')
-require('ensembleBranch.lua')
+require('ensembleBranch2.lua')
+require('rate.lua')
+require('graph.lua')
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -24,11 +25,13 @@ sampleSize = {1,120,120}
 
 batchSize = 32
 valBatchSize = 32
-testBatchSize = 32
+valAugSize = 32
+testAugSize = 32
+testBatchSize = 50
 
 augSize = 1
 epoch = 1
-epochSize = 30e3/batchSize/augSize
+epochSize = 30e3/batchSize/augSize --30e3/batchSize/augSize
 nEpochs = 10000
 cvError = torch.Tensor(nEpochs)
 nModel = os.time()
@@ -37,7 +40,7 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 0.03, -- 1e-3, --0.03,
+    learningRate = 0.05, -- 1e-3, --0.03,
     weightDecay = 1e-4, -- play with
     momentum = 0.9,
     learningRateDecay = 5e-4,
@@ -47,32 +50,40 @@ optimState = {
 
 optimMethod = optim.nag
 
-trainSet, valSet = readTrainAndCrossValFiles('/mnt/plankton_data/train_128gthn/',9)
+torch.manualSeed(123)
+trainFiles = '/mnt/plankton_data/train_128gthn/'
+trainSet, valSet = readTrainAndCrossValFiles(trainFiles,9)
+torch.seed()
+
+logFile = io.open(string.format('models/model%d.err',nModel),'a')
+logFile:write(trainFiles)
+logFile:write('\n')
+logFile:close()
 
 --mdl = torch.load('models/model1422714991_epoch129.th')
 --mdl:cuda()
 --mdl:evaluate()
 
-dofile('model_ultraIncep.lua') -- ?
+dofile('googlenet.lua') -- ?
 
 --share = true
 
 for epoch = 1,nEpochs do
     confusion:zero()
-    dofile('train.lua')
-    dofile('val.lua')
+    dofile('train2.lua')
+    dofile('val2.lua')
+    optimState.learningRate = setRate()
     gnuplot.plot(cvError[{{1,epoch}}],'-')
     gnuplot.axis({1,epoch+100,0.5,5})
 --    torch.save('confusionMat.th',confusion)
---    mdl_last = mdl:clone():float()
     if file_exists('save') then
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
-        torch.save(fileName, mdl_last)
+        torch.save(fileName, mdl)
         os.remove('save')
     end
     if file_exists('test') then
         testset = readTestFiles('/mnt/plankton_data/test_128gthn')
-        dofile('test.lua')
+        dofile('test2.lua')
         os.remove('test')
     end
     if file_exists('break') then
