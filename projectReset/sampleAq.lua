@@ -27,7 +27,7 @@ function getCrValSample(n)
    local targets = torch.CudaTensor(valBatchSize)
    for j=1,valBatchSize do
       local rawExample = torch.CudaTensor(1,3,sampleSize[2],sampleSize[3])
-      rawExample[{{1,1},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = image.scale(image.load(valSet[sampleList[j]].relPath),sampleSize[2],sampleSize[3])
+      rawExample[{{1,1},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = jitter(image.load(valSet[sampleList[j]].relPath))
       batch[{{1 + (j-1),j},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = rawExample[1]:resize(1,sampleSize[1],sampleSize[2],sampleSize[3])
       targets:narrow(1,1 +(j-1),1):fill(valSet[sampleList[j]].classNum)
    end

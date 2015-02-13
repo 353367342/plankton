@@ -2,7 +2,7 @@ require 'nn'
 require('inception.lua')
 require 'cunn'
 require 'cutorch'
-require('ensembleBranch2.lua')
+require('ensembleBranch.lua')
 
 features = {}
 
@@ -42,14 +42,10 @@ features[4]:add(inception_module(2,528,{{256}, {160, 320}, {32, 128}, {3, 128}})
 features[4]:add(inception_module(2,832,{{256}, {160, 320}, {32, 128}, {3, 128}}))
 features[4]:add(inception_module(2,832,{{384}, {192, 384}, {48, 128}, {3, 128}}))
 features[4]:add(nn.SpatialAveragePooling(6,6))
---features[4]:add(nn.Dropout(0.3)) -- So Low?
+features[4]:add(nn.Dropout(0.4))
 features[4]:add(nn.View(1024))
---features[4]:add(graph(1024,{512,256},0.5))
-features[4]:add(nn.Linear(1024,512))
-features[4]:add(nn.ReLU())
-features[4]:add(nn.Dropout(0.5))
-features[4]:add(nn.Linear(512,121))
-features[4]:add(nn.LogSoftMax())
+features[4]:add(nn.Linear(1024,121))
+--features[4]:add(nn.LogSoftMax())
 features[4]:cuda()
 depthConcat2:add(features[4])
 depthConcat2:cuda()
@@ -62,8 +58,9 @@ mdl:add(depthConcat1)
 --mdl:add(nn.Exp(10):cuda())
 --mdl:add(nn.SpatialAveragePooling(1,3):cuda())
 --mdl:add(nn.Mul(1/3):cuda())
---mdl:add(nn.View(121))
---mdl:add(nn.LogSoftMax():cuda())
+mdl:add(nn.Linear(363,121):cuda())
+mdl:add(nn.View(121))
+mdl:add(nn.LogSoftMax():cuda())
 
 --need to repmat output x3
 --output should be 363

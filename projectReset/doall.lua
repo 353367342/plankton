@@ -9,11 +9,12 @@ require('loadData.lua')
 require('randTransform.lua')
 require('sampleAq.lua')
 require('writeData.lua')
-require('jitter')
+require('affine2.lua')
 require('inception')
-require('ensembleBranch2.lua')
+require('ensembleBranch.lua')
 require('rate.lua')
 require('graph.lua')
+dofile('/usr/local/lua/opencv/init.lua')
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -40,7 +41,7 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 0.05, -- 1e-3, --0.03,
+    learningRate = 0.04, -- 1e-3, --0.03,
     weightDecay = 1e-4, -- play with
     momentum = 0.9,
     learningRateDecay = 5e-4,
@@ -50,7 +51,7 @@ optimState = {
 
 optimMethod = optim.nag
 
-torch.manualSeed(123)
+--torch.manualSeed(123)
 trainFiles = '/mnt/plankton_data/train_128gthn/'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,9)
 torch.seed()
@@ -64,14 +65,14 @@ logFile:close()
 --mdl:cuda()
 --mdl:evaluate()
 
-dofile('googlenet.lua') -- ?
+dofile('googlenet_fc.lua') -- ?
 
 --share = true
 
 for epoch = 1,nEpochs do
     confusion:zero()
-    dofile('train2.lua')
-    dofile('val2.lua')
+    dofile('train.lua')
+    dofile('val.lua')
     optimState.learningRate = setRate()
     gnuplot.plot(cvError[{{1,epoch}}],'-')
     gnuplot.axis({1,epoch+100,0.5,5})
@@ -83,7 +84,7 @@ for epoch = 1,nEpochs do
     end
     if file_exists('test') then
         testset = readTestFiles('/mnt/plankton_data/test_128gthn')
-        dofile('test2.lua')
+        dofile('test.lua')
         os.remove('test')
     end
     if file_exists('break') then

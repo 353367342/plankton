@@ -1,3 +1,4 @@
+torch.manualSeed(123)
 mdl:evaluate()
 local valError = 0
 local valSize = torch.floor(#valSet/valBatchSize)
@@ -23,3 +24,5 @@ for i=1,valSize do
 time = sys.clock() - time
 print("<validation> time for CrosVal = " .. (time) .. 's')
 epoch = epoch + 1
+torch.seed()
+collectgarbage()
