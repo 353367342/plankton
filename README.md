@@ -35,7 +35,6 @@ What each file does:
 ```
 {
   readTrainFiles: gets all image urls along with class name and class index from training directory
-  readTrainAndCrossValFiles: params: (path, percent of set for cross validation) ,returns (trainFiles, crossValFiles)
   readTestFiles: gets all image urls for test files
   classesToNum: returns the mapping of classes to class indicies
 }

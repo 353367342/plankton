@@ -15,6 +15,7 @@ require('ensembleBranch.lua')
 require('rate.lua')
 require('graph.lua')
 dofile('/usr/local/lua/opencv/init.lua')
+--dofile('MsSpatialConvolutionMM.lua')
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -42,7 +43,7 @@ criterion:cuda()
 
 optimState = {
     learningRate = 0.04, -- 1e-3, --0.03,
-    weightDecay = 1e-4, -- play with
+    weightDecay = 0, -- play with
     momentum = 0.9,
     learningRateDecay = 5e-4,
     dampening = 0,
@@ -52,7 +53,7 @@ optimState = {
 optimMethod = optim.nag
 
 --torch.manualSeed(123)
-trainFiles = '/mnt/plankton_data/train_128gthn/'
+trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,9)
 torch.seed()
 
@@ -61,11 +62,11 @@ logFile:write(trainFiles)
 logFile:write('\n')
 logFile:close()
 
---mdl = torch.load('models/model1422714991_epoch129.th')
+--mdl = torch.load('models/magic9696.th')
 --mdl:cuda()
 --mdl:evaluate()
 
-dofile('googlenet_fc.lua') -- ?
+dofile('model_120_2.lua') -- ?
 
 --share = true
 
@@ -74,6 +75,7 @@ for epoch = 1,nEpochs do
     dofile('train.lua')
     dofile('val.lua')
     optimState.learningRate = setRate()
+    optimState.weightDecay = setDecay()
     gnuplot.plot(cvError[{{1,epoch}}],'-')
     gnuplot.axis({1,epoch+100,0.5,5})
 --    torch.save('confusionMat.th',confusion)
@@ -83,7 +85,7 @@ for epoch = 1,nEpochs do
         os.remove('save')
     end
     if file_exists('test') then
-        testset = readTestFiles('/mnt/plankton_data/test_128gthn')
+        testset = readTestFiles('/mnt/plankton_data/test_128gtn')
         dofile('test.lua')
         os.remove('test')
     end
