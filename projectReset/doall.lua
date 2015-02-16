@@ -9,10 +9,11 @@ require('loadData.lua')
 require('randTransform.lua')
 require('sampleAq.lua')
 require('writeData.lua')
-require('affine2.lua')
+require('affine5.lua')
 require('inception')
 require('ensembleBranch.lua')
 require('rate.lua')
+require('decay.lua')
 require('graph.lua')
 dofile('/usr/local/lua/opencv/init.lua')
 --dofile('MsSpatialConvolutionMM.lua')
@@ -42,7 +43,7 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 0.04, -- 1e-3, --0.03,
+    learningRate = 0.02, -- 1e-3, --0.03,
     weightDecay = 0, -- play with
     momentum = 0.9,
     learningRateDecay = 5e-4,
@@ -52,21 +53,25 @@ optimState = {
 
 optimMethod = optim.nag
 
---torch.manualSeed(123)
+torch.manualSeed(31415)
 trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,9)
 torch.seed()
 
+mdlFile = 'model_sou2.lua'
+
 logFile = io.open(string.format('models/model%d.err',nModel),'a')
 logFile:write(trainFiles)
 logFile:write('\n')
+logFile:write(mdlFile)
+logFile:write('\n')
 logFile:close()
 
---mdl = torch.load('models/magic9696.th')
+--mdl = torch.load('models/model1423959227_epoch122.th')
 --mdl:cuda()
 --mdl:evaluate()
 
-dofile('model_120_2.lua') -- ?
+dofile(mdlFile) -- ?
 
 --share = true
 
