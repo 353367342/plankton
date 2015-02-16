@@ -1,6 +1,6 @@
 mdl:cuda()
 mdl:evaluate()
-subFile = openFile('sub.csv')
+subFile = openFile('submissions/sub.csv')
 for n = 1,#testset/testBatchSize do
    batch,labels = getTestSample(n)
    pred = mdl:forward(batch)

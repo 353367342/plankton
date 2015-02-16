@@ -5,18 +5,17 @@ require 'cutorch'
 require 'cunn'
 require 'optim'
 require 'gnuplot'
-require('loadData.lua')
-require('randTransform.lua')
-require('sampleAq.lua')
-require('writeData.lua')
-require('affine5.lua')
-require('inception')
-require('ensembleBranch.lua')
-require('rate.lua')
-require('decay.lua')
-require('graph.lua')
+require('sampleAq/loadData.lua')
+require('sampleAq/sampleAq.lua')
+require('sampleAq/writeData.lua')
+require('augFuncs/affine5.lua')
+require('modules/inception')
+require('modules/ensembleBranch.lua')
+require('paramUpdates/rate.lua')
+require('paramUpdates/decay.lua')
+require('modules/graph.lua')
 dofile('/usr/local/lua/opencv/init.lua')
---dofile('MsSpatialConvolutionMM.lua')
+--dofile('modules/MsSpatialConvolutionMM.lua')
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -58,20 +57,20 @@ trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,9)
 torch.seed()
 
-mdlFile = 'model_sou2.lua'
+mdlFile = 'modelSrc/model_sou2.lua'
 
-logFile = io.open(string.format('models/model%d.err',nModel),'a')
+logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
 logFile:write('\n')
 logFile:write(mdlFile)
 logFile:write('\n')
 logFile:close()
 
---mdl = torch.load('models/model1423959227_epoch122.th')
---mdl:cuda()
---mdl:evaluate()
+mdl = torch.load('modelLogs/model1424102763_epoch12.th')
+mdl:cuda()
+mdl:evaluate()
 
-dofile(mdlFile) -- ?
+--dofile(mdlFile) -- ?
 
 --share = true
 

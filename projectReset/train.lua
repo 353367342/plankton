@@ -47,7 +47,7 @@ epochError = epochError/epochSize
 --torch.save('confusionMat.th',confusion)
 local errStr = string.format('Epoch: %g, Epoch Error: %g, Learning Rate: %g, Decay: %g',epoch,epochError,optimState.learningRate,optimState.weightDecay)
 print(errStr)
-local mdlErrFileName = string.format('models/model%d.err',nModel)
+local mdlErrFileName = string.format('modelLogs/model%d.err',nModel)
 local errFile = io.open(mdlErrFileName,'a')
 errFile:write(errStr)
 errFile:close()
