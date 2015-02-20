@@ -28,11 +28,7 @@ features:cuda()
 
 dropout_p = 0.5
 
-dgraph = nn.Sequential()
-dgraph:add(nn.Linear(featuresOut,featuresOut))
-dgraph:add(nn.Dropout(0.5))
-dgraph:add(nn.ReLU())
-dgraph:add(nn.Linear(featuresOut,121))
+dgraph = graph(featuresOut,hiddenNodes,0.5)
 dgraph:cuda()
 
 mdl = nn.Sequential()

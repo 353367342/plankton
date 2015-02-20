@@ -3,6 +3,7 @@ require 'image'
 require 'lfs'
 require 'cutorch'
 require 'cunn'
+require 'fbcunn'
 require 'optim'
 require 'gnuplot'
 require('sampleAq/loadData.lua')
@@ -42,10 +43,10 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 0.02, -- 1e-3, --0.03,
-    weightDecay = 0, -- play with
+    learningRate = 1e-5, --0.01, -- 1e-3, --0.03,
+    weightDecay = 1e-4, -- play with
     momentum = 0.9,
-    learningRateDecay = 5e-4,
+    learningRateDecay = 0,
     dampening = 0,
     nesterov = true
 }
@@ -53,11 +54,11 @@ optimState = {
 optimMethod = optim.nag
 
 torch.manualSeed(31415)
-trainFiles = '/mnt/plankton_data/train_128gtn'
+trainFiles = '/mnt/plankton_data/train_128tn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,9)
 torch.seed()
 
-mdlFile = 'modelSrc/model_sou2.lua'
+mdlFile = 'modelSrc/model_120_3tree.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -66,22 +67,26 @@ logFile:write(mdlFile)
 logFile:write('\n')
 logFile:close()
 
-mdl = torch.load('modelLogs/model1424102763_epoch12.th')
-mdl:cuda()
-mdl:evaluate()
+--mdl = torch.load('models/model1424136425_epoch428.th')
+--mdl:cuda()
+--mdl:evaluate()
 
---dofile(mdlFile) -- ?
+dofile(mdlFile) -- ?
 
 --share = true
 
-for epoch = 1,nEpochs do
+for epoch = 429,nEpochs do
     confusion:zero()
     dofile('train.lua')
     dofile('val.lua')
     optimState.learningRate = setRate()
     optimState.weightDecay = setDecay()
     gnuplot.plot(cvError[{{1,epoch}}],'-')
-    gnuplot.axis({1,epoch+100,0.5,5})
+    gnuplot.axis({1,epoch+40,0.5,5})
+    gnuplot.grid(true)
+    gnuplot.title('Cross Validation Error')
+    gnuplot.xlabel('Epoch (30e3 Images per Epoch)')
+    gnuplot.ylabel('Multi-Class Negative Log Loss')
 --    torch.save('confusionMat.th',confusion)
     if file_exists('save') then
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
@@ -89,7 +94,7 @@ for epoch = 1,nEpochs do
         os.remove('save')
     end
     if file_exists('test') then
-        testset = readTestFiles('/mnt/plankton_data/test_128gtn')
+        testset = readTestFiles('/mnt/plankton_data/test_128tn')
         dofile('test.lua')
         os.remove('test')
     end
@@ -98,6 +103,3 @@ for epoch = 1,nEpochs do
         break
     end
 end
-
--- -- fileName = string.format('models/model%d_epoch%g.th',nModel,epoch)
--- -- torch.save(fileName, mdl)
