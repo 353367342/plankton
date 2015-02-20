@@ -26,7 +26,6 @@ int main(int argc, char **argv) {
   fout << header << endl;
   vector<string> lines(n_input_files);
   vector<string> tokens(n_input_files);
-  vector<long double> values(n_input_files);
   long double sum;
   while (getline(fins[0], lines[0])) {
     vector<istringstream> sses(n_input_files);
