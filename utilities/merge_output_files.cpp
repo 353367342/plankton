@@ -9,6 +9,7 @@ using namespace std;
 int main(int argc, char **argv) {
   if (argc != 4) {
     cout << "Put in files <input1> <input2> <output> as arguments." << endl;
+    return 1;
   }
   ifstream fin0(argv[1]);
   ifstream fin1(argv[2]);
