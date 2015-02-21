@@ -11,6 +11,7 @@ require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
 require('augFuncs/affine5.lua')
 require('modules/inception')
+require('modules/mnn')
 require('modules/ensembleBranch.lua')
 require('paramUpdates/rate.lua')
 require('paramUpdates/decay.lua')
@@ -43,7 +44,7 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 1e-5, --0.01, -- 1e-3, --0.03,
+    learningRate = 1e-2, --0.01, -- 1e-3, --0.03,
     weightDecay = 1e-4, -- play with
     momentum = 0.9,
     learningRateDecay = 0,
@@ -54,11 +55,11 @@ optimState = {
 optimMethod = optim.nag
 
 torch.manualSeed(31415)
-trainFiles = '/mnt/plankton_data/train_128tn'
+trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,9)
 torch.seed()
 
-mdlFile = 'modelSrc/model_120_3tree.lua'
+mdlFile = 'modelSrc/model_120_2maxout.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -75,7 +76,7 @@ dofile(mdlFile) -- ?
 
 --share = true
 
-for epoch = 429,nEpochs do
+for epoch = 1,nEpochs do
     confusion:zero()
     dofile('train.lua')
     dofile('val.lua')
@@ -94,7 +95,7 @@ for epoch = 429,nEpochs do
         os.remove('save')
     end
     if file_exists('test') then
-        testset = readTestFiles('/mnt/plankton_data/test_128tn')
+        testset = readTestFiles('/mnt/plankton_data/test_128gtn')
         dofile('test.lua')
         os.remove('test')
     end
