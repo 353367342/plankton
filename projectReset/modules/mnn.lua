@@ -16,7 +16,7 @@ function mnn(featuresIn, featuresOut, nMaxOut)
 	maxOutLay:add(maxOut)
 	maxOutLay:add(nn.Reshape(nMaxOut,featuresOut))
 	maxOutLay:add(nn.Transpose({2,3}))
-	maxOutLay:add(nn.Max(nMaxOut))
+	maxOutLay:add(nn.Max(3))
 	return maxOutLay
 end
 
