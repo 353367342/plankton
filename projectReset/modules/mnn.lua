@@ -6,11 +6,13 @@ require 'nn'
 -- featuresOut -> # of featuresOut
 -- nMaxOut of hidden MaxOut Units
 
-function mnn(featuresIn, featuresOut, nMaxOut)
+function mnn(featuresIn, featuresOut, nMaxOut, dropP)
 	local maxOutLay = nn.Sequential()
 	local maxOut = nn.DepthConcat(2)
 	for i = 1,nMaxOut do
-		local lin = nn.Linear(featuresIn,featuresOut)
+		local lin = nn.Sequential() 
+		lin:add(nn.Dropout(dropP))
+		lin:add(nn.Linear(featuresIn,featuresOut))
 		maxOut:add(lin)
 	end
 	maxOutLay:add(maxOut)

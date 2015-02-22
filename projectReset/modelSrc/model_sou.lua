@@ -21,10 +21,11 @@ features:add(nn.View(featuresOut))
 features:cuda()
 
 dgraph = nn.Sequential()
-dgraph:add(nn.Linear(featuresOut,512))
+dgraph:add(nn.Dropout(0.5))
+dgraph:add(nn.Linear(featuresOut,featuresOut))
 dgraph:add(nn.Dropout(0.5))
 dgraph:add(nn.ReLU())
-dgraph:add(nn.Linear(512,121))
+dgraph:add(nn.Linear(featuresOut,121))
 dgraph:add(nn.LogSoftMax())
 dgraph:cuda()
 
