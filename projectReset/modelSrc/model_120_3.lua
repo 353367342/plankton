@@ -5,7 +5,6 @@ require 'image'
 
 fSize = {1,96,300,400,512,562,600}
 featuresOut = fSize[7]
-hiddenNodes = {512,256}
 
 features = nn.Sequential()
 features:add(nn.SpatialConvolutionMM(fSize[1],fSize[2],8,8,2,2)) -- (120 - 8+ 2)/2 = 57
@@ -29,6 +28,7 @@ features:cuda()
 dropout_p = 0.5
 
 dgraph = nn.Sequential()
+dgraph:add(nn.Dropout(0.5)) -- wasn't her ein best run
 dgraph:add(nn.Linear(featuresOut,featuresOut))
 dgraph:add(nn.Dropout(0.5))
 dgraph:add(nn.ReLU())

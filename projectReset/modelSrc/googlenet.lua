@@ -1,16 +1,19 @@
 require 'nn'
-require('inception.lua')
+--require('inception.lua')
 require 'cunn'
 require 'cutorch'
-require('ensembleBranch2.lua')
+--require('ensembleBranch2.lua')
 
 features = {}
 
 features[1] = nn.Sequential()
 features[1]:add(nn.SpatialConvolutionMM(1,64,7,7,2,2))
+features[1]:add(nn.ReLU())
 features[1]:add(nn.SpatialMaxPooling(3,3,2,2))
 features[1]:add(nn.SpatialConvolutionMM(64,192,1,1,1,1))    --added
+features[1]:add(nn.ReLU())
 features[1]:add(nn.SpatialConvolutionMM(192,192,3,3,1,1))
+features[1]:add(nn.ReLU())
 features[1]:add(nn.SpatialMaxPooling(3,3,2,2))
 features[1]:cuda()
 
@@ -40,15 +43,13 @@ depthConcat2:add(ensemble_branch(528, 5, 3))
 features[4] = nn.Sequential()
 features[4]:add(inception_module(2,528,{{256}, {160, 320}, {32, 128}, {3, 128}}))
 features[4]:add(inception_module(2,832,{{256}, {160, 320}, {32, 128}, {3, 128}}))
-features[4]:add(inception_module(2,832,{{384}, {192, 384}, {48, 128}, {3, 128}}))
-features[4]:add(nn.SpatialAveragePooling(6,6))
---features[4]:add(nn.Dropout(0.3)) -- So Low?
+features[4]:add(inception_module(2,832,{{384}, {192, 384}, {48, 128}, {3, 128}})) -- 1024 x 6 x6 
+features[4]:add(nn.SpatialAveragePooling(6,6)) -- 1024 x 1 x 1
 features[4]:add(nn.View(1024))
---features[4]:add(graph(1024,{512,256},0.5))
-features[4]:add(nn.Linear(1024,512))
+features[4]:add(nn.Linear(1024,1024))
 features[4]:add(nn.ReLU())
 features[4]:add(nn.Dropout(0.5))
-features[4]:add(nn.Linear(512,121))
+features[4]:add(nn.Linear(1024,121))
 features[4]:add(nn.LogSoftMax())
 features[4]:cuda()
 depthConcat2:add(features[4])

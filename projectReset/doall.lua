@@ -13,7 +13,7 @@ require('augFuncs/affine5.lua')
 require('modules/inception')
 require('modules/mnn')
 require('modules/fgraph')
-require('modules/ensembleBranch.lua')
+require('modules/ensembleBranch2.lua')
 require('paramUpdates/rate.lua')
 require('paramUpdates/decay.lua')
 require('modules/graph.lua')
@@ -29,7 +29,7 @@ end
 loadSize = {1,128,128}
 sampleSize = {1,120,120}
 
-batchSize = 32
+batchSize = 32 --32
 valBatchSize = 32
 valAugSize = 32
 testAugSize = 32
@@ -46,24 +46,24 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 1e-8, -- 1e-2, --0.01, -- 1e-3, --0.03,
-    weightDecay = 0 --1e-4, -- play with
---    momentum = 0.9,
---    learningRateDecay = 0,
+    learningRate = 0.01, -- 1e-2, --0.01, -- 1e-3, --0.03,
+    weightDecay = 1e-4, -- play with
+    momentum = 0.9,
+    learningRateDecay = 0
 --    dampening = 0,
 --    nesterov = true
 }
 
-optimMethod = optim.adam
+optimMethod = optim.nag
 
 --cutorch.setDevice(2) -- setgtx
 --torch.manualSeed(31415)
 --torch.manualSeed(21718)
 trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
-torch.seed()
+--torch.seed()
 
-mdlFile = 'modelSrc/model_120_3fgraph.lua'
+mdlFile = 'modelSrc/model_120_3.3.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -71,14 +71,16 @@ logFile:write('\n')
 logFile:write(mdlFile)
 logFile:write('\n')
 s = torch.initialSeed()
-logFile:write(string.format('Seed: %g\n',s))
+logFile:write(string.format('Seed: %d\n',s))
 logFile:close()
 
---mdl = torch.load('models/model1424136425_epoch428.th')
+--mdl = torch.load('models/model1424395071_epoch37.th')
 --mdl:cuda()
 --mdl:evaluate()
 
 dofile(mdlFile) -- ?
+--mdl:float()
+--mdl:cuda()
 
 --share = true
 
@@ -98,6 +100,11 @@ for epoch = 1,nEpochs do
     if file_exists('save') then
         os.remove('save')
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
+        torch.save(fileName, mdl)
+    end
+    if file_exists('feat') then
+        os.remove('feat')
+        fileName = string.format('models/feat%d_epoch%g.th',nModel,epoch-1)
         torch.save(fileName, mdl)
     end
     if file_exists('test') then

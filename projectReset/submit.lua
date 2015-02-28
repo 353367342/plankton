@@ -20,15 +20,15 @@ cutorch.setDevice(2)
 
 loadSize = {1,128,128}
 sampleSize = {1,120,120}
-testBatchSize = 16
-mdl = torch.load('models/model1424530230_epoch109.th')
+testBatchSize = 32
+mdl = torch.load('models/model1425065142_epoch12.th')
 mdl:cuda()
 mdl:evaluate()
 
 testset = readTestFiles('/mnt/plankton_data/test_128gtn')
 
 for i =1,1 do
-    subFileName = string.format('submissions/model1424530230_epoch109_%g.csv',i)
+    subFileName = string.format('submissions/model1425065142_epoch12_%g.csv',i)
     subFile = openFile(subFileName)
     for n = 1,#testset/testBatchSize do
         batch,labels = getTestSample(n)

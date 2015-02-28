@@ -12,7 +12,7 @@ for i=1,valSize do
       cvError[epoch] = valError/valSize
       local errStr = string.format(' Cross Val Error: %g\n',valError/valSize)
       print(errStr)
-      local mdlErrFileName = string.format('models/model%d.err',nModel)
+      local mdlErrFileName = string.format('modelLogs/model%d.err',nModel)
       local errFile = io.open(mdlErrFileName,'a')
       errFile:write(errStr)
       errFile:close()
