@@ -59,11 +59,11 @@ optimMethod = optim.nag
 --cutorch.setDevice(2) -- setgtx
 --torch.manualSeed(31415)
 --torch.manualSeed(21718)
-trainFiles = '/mnt/plankton_data/train_128gtn'
+trainFiles = '/mnt/plankton_data/train_128tn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
-mdlFile = 'modelSrc/model_120_3.3.lua'
+mdlFile = 'modelSrc/ms3.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -85,13 +85,14 @@ dofile(mdlFile) -- ?
 --share = true
 
 for epoch = 1,nEpochs do
+    mdl_last = mdl:clone()
     confusion:zero()
     dofile('train.lua')
     dofile('val.lua')
     optimState.learningRate = setRate()
     optimState.weightDecay = setDecay()
     gnuplot.plot(cvError[{{1,epoch}}],'-')
-    gnuplot.axis({1,epoch+40,0.5,5})
+    gnuplot.axis({1,epoch+5,0.5,3})
     gnuplot.grid(true)
     gnuplot.title('Cross Validation Error')
     gnuplot.xlabel('Epoch (30e3 Images per Epoch)')
@@ -100,7 +101,7 @@ for epoch = 1,nEpochs do
     if file_exists('save') then
         os.remove('save')
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
-        torch.save(fileName, mdl)
+        torch.save(fileName, mdl_last)
     end
     if file_exists('feat') then
         os.remove('feat')
@@ -109,7 +110,7 @@ for epoch = 1,nEpochs do
     end
     if file_exists('test') then
         os.remove('test')
-        testset = readTestFiles('/mnt/plankton_data/test_128gtn')
+        testset = readTestFiles('/mnt/plankton_data/test_128tn')
         dofile('test.lua')
     end
     if file_exists('break') then
