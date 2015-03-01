@@ -50,8 +50,6 @@ optimState = {
     weightDecay = 1e-4, -- play with
     momentum = 0.9,
     learningRateDecay = 0
---    dampening = 0,
---    nesterov = true
 }
 
 optimMethod = optim.nag
@@ -59,7 +57,7 @@ optimMethod = optim.nag
 --cutorch.setDevice(2) -- setgtx
 --torch.manualSeed(31415)
 --torch.manualSeed(21718)
-trainFiles = '/mnt/plankton_data/train_128tn'
+trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
@@ -98,6 +96,9 @@ for epoch = 1,nEpochs do
     gnuplot.xlabel('Epoch (30e3 Images per Epoch)')
     gnuplot.ylabel('Multi-Class Negative Log Loss')
 --    torch.save('confusionMat.th',confusion)
+    if epoch % 4 == 0 then
+    	optimState.learningRate = optimState.learningRate*0.8
+    end
     if file_exists('save') then
         os.remove('save')
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
@@ -110,7 +111,7 @@ for epoch = 1,nEpochs do
     end
     if file_exists('test') then
         os.remove('test')
-        testset = readTestFiles('/mnt/plankton_data/test_128tn')
+        testset = readTestFiles('/mnt/plankton_data/test_128gtn')
         dofile('test.lua')
     end
     if file_exists('break') then
