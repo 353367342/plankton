@@ -61,7 +61,7 @@ trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms3.lua'
+mdlFile = 'modelSrc/inceptionReset.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -81,7 +81,7 @@ dofile(mdlFile) -- ?
 --mdl:cuda()
 
 --share = true
-
+plotFile = string.format('modelLogs/model%d.pdf',nModel)
 for epoch = 1,nEpochs do
     mdl_last = mdl:clone()
     confusion:zero()
@@ -89,12 +89,14 @@ for epoch = 1,nEpochs do
     dofile('val.lua')
     optimState.learningRate = setRate()
     optimState.weightDecay = setDecay()
-    gnuplot.plot(cvError[{{1,epoch}}],'-')
+    gnuplot.pdffigure(plotFile)
     gnuplot.axis({1,epoch+5,0.5,3})
     gnuplot.grid(true)
     gnuplot.title('Cross Validation Error')
     gnuplot.xlabel('Epoch (30e3 Images per Epoch)')
     gnuplot.ylabel('Multi-Class Negative Log Loss')
+    gnuplot.plot({cvError[{{1,epoch}}],'-'})
+    gnuplot.plotflush()
 --    torch.save('confusionMat.th',confusion)
     if epoch % 4 == 0 then
     	optimState.learningRate = optimState.learningRate*0.8
