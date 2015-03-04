@@ -5,14 +5,14 @@ require 'cutorch'
 features = {}
 
 features[1] = nn.Sequential()
-features[1]:add(nn.SpatialConvolutionMM(1,64,7,7,2,2))
+features[1]:add(nn.SpatialConvolutionMM(1,96,7,7,2,2))
 features[1]:add(nn.SpatialMaxPooling(3,3,2,2))
-features[1]:add(nn.SpatialConvolutionMM(64,192,3,3,1,1))
+features[1]:add(nn.SpatialConvolutionMM(96,256,3,3,1,1))
 features[1]:add(nn.SpatialMaxPooling(3,3,2,2))
 features[1]:cuda()
 
 features[2] = nn.Sequential()
-features[2]:add(inception_module(2,192,{{64}, {96, 128}, {16, 32}, {3, 32}}))
+features[2]:add(inception_module(2,256,{{64}, {96, 128}, {16, 32}, {3, 32}}))
 features[2]:add(inception_module(2,256,{{128}, {128, 192}, {32, 96}, {3, 64}}))
 features[2]:add(nn.SpatialMaxPooling(2,2,2,2))
 features[2]:cuda()
@@ -48,9 +48,10 @@ mdl:add(features[5])
 mdl:add(features[6])
 mdl:add(nn.View(1024*9))
 mdl:add(nn.Dropout(0.5):cuda())
-mdl:add(nn.Linear(1024*9,3000):cuda())
+mdl:add(nn.Linear(1024*9,6000):cuda())
+mdl:add(nn.Dropout(0.5):cuda())
 mdl:add(nn.SoftSign():cuda())
-mdl:add(nn.Linear(3000,121):cuda())
+mdl:add(nn.Linear(6000,121):cuda())
 mdl:add(nn.LogSoftMax():cuda())
 
 

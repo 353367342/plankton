@@ -24,8 +24,6 @@ function file_exists(name)
    if f~=nil then io.close(f) return true else return false end
 end
 
-
-
 loadSize = {1,128,128}
 sampleSize = {1,120,120}
 
@@ -54,14 +52,14 @@ optimState = {
 
 optimMethod = optim.nag
 
---cutorch.setDevice(2) -- setgtx
+cutorch.setDevice(2) -- setgtx
 --torch.manualSeed(31415)
 --torch.manualSeed(21718)
-trainFiles = '/mnt/plankton_data/train_128gtn'
+trainFiles = '/mnt/d2/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms3.lua'
+mdlFile = 'modelSrc/ms3.5.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -98,25 +96,25 @@ for epoch = 1,nEpochs do
     gnuplot.plot({cvError[{{1,epoch}}],'-'})
     gnuplot.plotflush()
 --    torch.save('confusionMat.th',confusion)
-    if epoch % 4 == 0 then
+    if epoch % 5 == 0 then
     	optimState.learningRate = optimState.learningRate*0.8
     end
-    if file_exists('save') then
-        os.remove('save')
+    if file_exists('save2') then
+        os.remove('save2')
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
         torch.save(fileName, mdl_last)
     end
-    if file_exists('feat') then
-        os.remove('feat')
+    if file_exists('feat2') then
+        os.remove('feat2')
         fileName = string.format('models/feat%d_epoch%g.th',nModel,epoch-1)
         torch.save(fileName, mdl)
     end
-    if file_exists('test') then
-        os.remove('test')
-        testset = readTestFiles('/mnt/plankton_data/test_128gtn')
+    if file_exists('test2') then
+        os.remove('test2')
+        testset = readTestFiles('/mnt/d2/plankton_data/test_128gtn')
         dofile('test.lua')
     end
-    if file_exists('break') then
+    if file_exists('break2') then
         os.remove('break')
         break
     end

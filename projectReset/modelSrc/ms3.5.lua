@@ -20,10 +20,10 @@ features:add(nn.SpatialConvolutionMM(512,512,3,3,1,1,1)) --7
 features:add(nn.ReLU())
 features:add(nn.SpatialConvolutionMM(512,512,3,3,1,1,1)) --7
 features:add(nn.ReLU())
-features:add(nn.SpatialAdaptiveMaxPooling(4,4)) -- 4
+features:add(nn.SpatialAdaptiveMaxPooling(5,5)) -- 4
 features:cuda()
 
-featuresOut = 512*4*4
+featuresOut = 512*5*5
 
 dgraph = nn.Sequential()
 dgraph:add(nn.View(featuresOut))
