@@ -21,3 +21,10 @@ usage of thresh_merge_files.cpp (thresholds first then merges files)
 g++ --std=c++11 thresh_merge_files.cpp
 ./a.out <input file1> <input file2> ... <input filen> <output file> <threshold>
 ```
+
+usage of weighted_merge_multiple_files.cpp (weighted merge of n files)
+weights file is a file of space or newline delimited weights and must have same number of weights as input files
+```
+g++ --std=c++11 weighted_merge_multiple_files.cpp
+./a.out <input file1> <input file2> ... <input filen> <weights file> <output file>
+```
