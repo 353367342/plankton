@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "tabdown": "*",
-    "line-reader": "*"
-  }
-}
