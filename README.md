@@ -1,12 +1,6 @@
 MUST RENAME shrimp-like_other to shrimp_like_other
 the dash matters for lua tables
 
-Note unknown and artifacts are grouped together (last group)
-Red boxes that are on the same level as blue boxes go to the end of the group
-The exception is unknown/artifacts (which is the absolute end group)
-
-Only Blue boxes: (Pulled from categoriesOnly.txt and pdf found at
-https://kaggle2.blob.core.windows.net/competitions-data/kaggle/3978/plankton_identification.pdf?sv=2012-02-12&se=2015-01-30T05%3A18%3A09Z&sr=b&sp=r&sig=uIVvBgdnf2UqhWSza28QT3YxGF%2B4YRxezDPXwSQwLpE%3D)
 ```
 Array Indicies:
 Plankton: 1-116
@@ -39,14 +33,6 @@ What each file does:
   classesToNum: returns the mapping of classes to class indicies
 }
 ```
-- luaPreprocess/tableparser.js - outputs to stdout json for mapping classnames to integers
-- luaPreprocess/removeBroadCategories.js - writes to categoriesOnly.txt (used for counting class groups to produce the above array indicies)
 - luaPreprocess/classTreeOrig.txt - tabbed tree pulled from kaggle forum
 - luaPreprocess/classTree.txt - reorganized classTreeOrig.txt file (red boxes that are on the same level as blue boxes go to the end of the group)
 - luaPreprocess/classesToInt - text file with lua table for mapping class names to array indicies (also copied and pasted in loadData.lua)
-
-Note to run javascript files:
-```
-npm install
-node [filename]
-```
