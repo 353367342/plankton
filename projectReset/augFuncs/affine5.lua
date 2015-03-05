@@ -31,7 +31,9 @@ function jitter(s)
   T2[2][3] = torch.randn(1):mul(5):add(64)
   T2[3][3] = 1
 
-  local Sc = torch.eye(3,3):mul(torch.randn(1):div(10):add(1)[1]) 
+--  local Sc = torch.eye(3,3):mul(torch.randn(1):div(10):add(1)[1])  --been using this
+--  local Sc = torch.eye(3,3):add(torch.rand(1):add(-:div(10))[1]) 
+  local Sc = torch.eye(3,3)
   local Asp = torch.eye(3,3)
   local a = torch.rand(1):div(8):add(0.9375)
   Asp[1][1] = a[1]

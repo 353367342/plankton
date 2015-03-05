@@ -57,9 +57,7 @@ cutorch.setDevice(2) -- setgtx
 --torch.manualSeed(21718)
 trainFiles = '/mnt/d2/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
---torch.seed()
-
-mdlFile = 'modelSrc/ms3.5.lua'
+mdlFile = 'modelSrc/ms5.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -70,13 +68,11 @@ s = torch.initialSeed()
 logFile:write(string.format('Seed: %d\n',s))
 logFile:close()
 
---mdl = torch.load('models/model1424395071_epoch37.th')
---mdl:cuda()
---mdl:evaluate()
+-- mdl = torch.load('models/model1425226319_epoch56.th')
+-- mdl:cuda()
+-- mdl:evaluate()
 
-dofile(mdlFile) -- ?
---mdl:float()
---mdl:cuda()
+dofile(mdlFile)
 
 --share = true
 plotFile = string.format('modelLogs/model%d.pdf',nModel)
