@@ -59,7 +59,7 @@ trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms6.lua'
+mdlFile = 'modelSrc/ms3.8.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
