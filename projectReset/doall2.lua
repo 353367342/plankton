@@ -53,11 +53,11 @@ optimState = {
 optimMethod = optim.nag
 
 cutorch.setDevice(2) -- setgtx
---torch.manualSeed(31415)
+torch.manualSeed(31415)
 --torch.manualSeed(21718)
 trainFiles = '/mnt/d2/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
-mdlFile = 'modelSrc/ms5.lua'
+mdlFile = 'modelSrc/ms3.9.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)

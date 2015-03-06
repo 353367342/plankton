@@ -28,7 +28,7 @@ end
 loadSize = {1,128,128}
 sampleSize = {1,120,120}
 
-batchSize = 32 --32
+batchSize = 32 
 valBatchSize = 32
 valAugSize = 32
 testAugSize = 32
@@ -60,7 +60,7 @@ trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms3Maxout.lua'
+mdlFile = 'modelSrc/mdlTable.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -84,8 +84,8 @@ plotFile = string.format('modelLogs/model%d.pdf',nModel)
 for epoch = 1,nEpochs do
     mdl_last = mdl:clone()
     confusion:zero()
-    dofile('train.lua')
-    dofile('val.lua')
+    dofile('trainTable.lua')
+    dofile('valTable.lua')
     optimState.learningRate = setRate(1)
     optimState.weightDecay = setDecay(1)
     gnuplot.pdffigure(plotFile)

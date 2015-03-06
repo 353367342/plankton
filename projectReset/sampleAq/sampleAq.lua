@@ -69,3 +69,39 @@ function getAugTestSample(n)
    end
    return batch, imId
 end
+
+function getTrainTableSample()
+   local sampleList = torch.randperm(#trainSet):narrow(1,1,batchSize)
+   local batchTbl = {}
+   local targets = torch.CudaTensor(augSize*batchSize)
+   for i = 1,3 do 
+      local batch = torch.CudaTensor(augSize*batchSize,sampleSize[1],sampleSize[2],sampleSize[3])
+      for j=1,batchSize do
+         local rawExample = image.load(trainSet[sampleList[j]].relPath)
+         local augExample = jitter(rawExample)
+         batch[{{1 + (j-1)*augSize,j*augSize},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = augExample
+         targets:narrow(1,1 +(j-1)*augSize,augSize):fill(trainSet[sampleList[j]].classNum)
+      end
+      batchTbl[i] = batch
+   end
+   return batchTbl, targets
+end
+
+function getCrValTableSample(n)
+   valList = torch.Tensor(#valSet)
+   i = 0; valList:apply(function() i = i + 1; return i end)
+   local sampleList = valList:narrow(1,1 + (n-1)*valBatchSize,valBatchSize)
+   local targets = torch.CudaTensor(valBatchSize)
+   local batchTbl = {}
+   for i=1,3 do
+      local batch = torch.CudaTensor(valBatchSize,sampleSize[1],sampleSize[2],sampleSize[3])
+      for j=1,valBatchSize do
+         local rawExample = torch.CudaTensor(1,3,sampleSize[2],sampleSize[3])
+         rawExample[{{1,1},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = jitter(image.load(valSet[sampleList[j]].relPath))
+         batch[{{1 + (j-1),j},{1,1},{1,sampleSize[2]},{1,sampleSize[3]}}] = rawExample[1]:resize(1,sampleSize[1],sampleSize[2],sampleSize[3])
+         targets:narrow(1,1 +(j-1),1):fill(valSet[sampleList[j]].classNum)
+      end
+      batchTbl[i] = batch
+   end
+   return batchTbl, targets
+end
