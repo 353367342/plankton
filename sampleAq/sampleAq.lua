@@ -74,7 +74,7 @@ function getTrainTableSample()
    local sampleList = torch.randperm(#trainSet):narrow(1,1,batchSize)
    local batchTbl = {}
    local targets = torch.CudaTensor(augSize*batchSize)
-   for i = 1,3 do 
+   for i = 1,5 do 
       local batch = torch.CudaTensor(augSize*batchSize,sampleSize[1],sampleSize[2],sampleSize[3])
       for j=1,batchSize do
          local rawExample = image.load(trainSet[sampleList[j]].relPath)
@@ -93,7 +93,7 @@ function getCrValTableSample(n)
    local sampleList = valList:narrow(1,1 + (n-1)*valBatchSize,valBatchSize)
    local targets = torch.CudaTensor(valBatchSize)
    local batchTbl = {}
-   for i=1,3 do
+   for i=1,5 do
       local batch = torch.CudaTensor(valBatchSize,sampleSize[1],sampleSize[2],sampleSize[3])
       for j=1,valBatchSize do
          local rawExample = torch.CudaTensor(1,3,sampleSize[2],sampleSize[3])

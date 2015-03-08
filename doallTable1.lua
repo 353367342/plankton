@@ -6,11 +6,10 @@ require 'cunn'
 require 'fbcunn'
 require 'optim'
 require 'gnuplot'
-require('exp/featurepooling.lua')
 require('sampleAq/loadData.lua')
 require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
-require('augFuncs/affine6.lua')
+require('augFuncs/affine5.lua')
 require('modules/inception')
 require('modules/mnn')
 require('modules/fgraph')
@@ -60,7 +59,7 @@ trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
-mdlFile = 'modelSrc/mdlTable.lua'
+mdlFile = 'modelSrc/msTbl3big.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -82,7 +81,7 @@ dofile(mdlFile) -- ?
 --share = true
 plotFile = string.format('modelLogs/model%d.pdf',nModel)
 for epoch = 1,nEpochs do
-    mdl_last = mdl:clone()
+--    mdl_last = mdl:clone()
     confusion:zero()
     dofile('trainTable.lua')
     dofile('valTable.lua')
@@ -103,12 +102,12 @@ for epoch = 1,nEpochs do
     if file_exists('save1') then
         os.remove('save1')
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
-        torch.save(fileName, mdl_last)
+        torch.save(fileName, mdl)
     end
     if file_exists('feat1') then
         os.remove('feat1')
         fileName = string.format('models/feat%d_epoch%g.th',nModel,epoch-1)
-        torch.save(fileName, mdl)
+        torch.save(fileName, features)
     end
     if file_exists('test1') then
         os.remove('test1')

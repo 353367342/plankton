@@ -6,11 +6,10 @@ require 'cunn'
 require 'fbcunn'
 require 'optim'
 require 'gnuplot'
-require('exp/featurepooling.lua')
 require('sampleAq/loadData.lua')
 require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
-require('augFuncs/affine6.lua')
+require('augFuncs/affine5.lua')
 require('modules/inception')
 require('modules/mnn')
 require('modules/fgraph')
@@ -60,7 +59,7 @@ trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms3Maxout.lua'
+mdlFile = 'modelSrc/ms3drop.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
