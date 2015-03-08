@@ -59,7 +59,7 @@ trainFiles = '/mnt/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms3drop.lua'
+mdlFile = 'modelSrc/ms3xxx.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -81,7 +81,7 @@ dofile(mdlFile) -- ?
 --share = true
 plotFile = string.format('modelLogs/model%d.pdf',nModel)
 for epoch = 1,nEpochs do
-    mdl_last = mdl:clone()
+--    mdl_last = mdl:clone()
     confusion:zero()
     dofile('train.lua')
     dofile('val.lua')
@@ -102,7 +102,7 @@ for epoch = 1,nEpochs do
     if file_exists('save1') then
         os.remove('save1')
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
-        torch.save(fileName, mdl_last)
+        torch.save(fileName, mdl)
     end
     if file_exists('feat1') then
         os.remove('feat1')
