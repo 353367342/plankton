@@ -9,15 +9,18 @@ require 'gnuplot'
 require('sampleAq/loadData.lua')
 require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
-require('augFuncs/affine5.lua')
+require('augFuncs/affine6.lua')
 require('modules/inception')
 require('modules/mnn')
 require('modules/fgraph')
 require('modules/ensembleBranch2.lua')
 require('paramUpdates/rate.lua')
 require('paramUpdates/decay.lua')
+require('paramUpdates/aug.lua')
 require('modules/graph.lua')
 dofile('/usr/local/lua/opencv/init.lua')
+
+noaug = false 
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -56,10 +59,10 @@ cutorch.setDevice(1) -- setgtx
 torch.manualSeed(31415)
 --torch.manualSeed(21718)
 trainFiles = '/mnt/plankton_data/train_128gtn'
-trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
+trainSet, valSet = readTrainAndCrossValFiles(trainFiles,10)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms3xxx.lua'
+mdlFile = 'modelSrc/ms3.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -87,6 +90,7 @@ for epoch = 1,nEpochs do
     dofile('val.lua')
     optimState.learningRate = setRate(1)
     optimState.weightDecay = setDecay(1)
+    noaug = setAug(1)
     gnuplot.pdffigure(plotFile)
     gnuplot.axis({1,epoch+5,0.5,2.5})
     gnuplot.grid(true)

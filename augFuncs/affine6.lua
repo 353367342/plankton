@@ -1,13 +1,17 @@
 function jitter(s)
- local d = torch.rand(2)
+  if noaug then 
+   dest = image.scale(s,sampleSize[2],sampleSize[3])
+   dest = dest:resize(1,sampleSize[1],sampleSize[2],sampleSize[3])
+  else 
+    local d = torch.rand(2)
    -- vflip
-   if d[1] > 0.5 then
-    s = image.vflip(s)
-  end
+    if d[1] > 0.5 then
+      s = image.vflip(s)
+    end
    -- hflip
-   if d[2] > 0.5 then
-    s = image.hflip(s)
-  end
+    if d[2] > 0.5 then
+      s = image.hflip(s)
+    end
   
   local T1 = torch.eye(3,3)
   T1[1][3] = -64
@@ -32,7 +36,6 @@ function jitter(s)
   T2[3][3] = 1
 
   local Sc = torch.eye(3,3):mul(torch.randn(1):div(10):add(1)[1])  --been using this
---  local Sc = torch.eye(3,3):add(torch.rand(1):add(-:div(10))[1]) 
   local Sc = torch.eye(3,3)
   local Asp = torch.eye(3,3)
   local a = torch.rand(1):div(8):add(0.9375)
@@ -50,5 +53,6 @@ function jitter(s)
   dest = opencv.WarpAffine(s,T)
   dest = image.scale(dest,sampleSize[2],sampleSize[3])
   dest = dest:resize(1,sampleSize[1],sampleSize[2],sampleSize[3])
-  return dest
+end
+return dest
 end

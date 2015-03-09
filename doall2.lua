@@ -9,7 +9,7 @@ require 'gnuplot'
 require('sampleAq/loadData.lua')
 require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
-require('augFuncs/affine5.lua')
+require('augFuncs/affine6.lua')
 require('modules/inception')
 require('modules/mnn')
 require('modules/fgraph')
@@ -18,6 +18,9 @@ require('paramUpdates/rate.lua')
 require('paramUpdates/decay.lua')
 require('modules/graph.lua')
 dofile('/usr/local/lua/opencv/init.lua')
+require('paramUpdates/aug.lua')
+
+noaug = false 
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -53,11 +56,11 @@ optimState = {
 optimMethod = optim.nag
 
 cutorch.setDevice(2) -- setgtx
-torch.manualSeed(31415)
+torch.manualSeed(-3308170819648392704)
 --torch.manualSeed(21718)
 trainFiles = '/mnt/d2/plankton_data/train_128gtn'
-trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
-mdlFile = 'modelSrc/ms3extra.lua'
+trainSet, valSet = readTrainAndCrossValFiles(trainFiles,10)
+mdlFile = 'modelSrc/ms3.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -77,12 +80,13 @@ dofile(mdlFile)
 --share = true
 plotFile = string.format('modelLogs/model%d.pdf',nModel)
 for epoch = 1,nEpochs do
-    mdl_last = mdl:clone()
+--    mdl_last = mdl:clone()
     confusion:zero()
     dofile('train.lua')
     dofile('val.lua')
     optimState.learningRate = setRate(2)
     optimState.weightDecay = setDecay(2)
+    noaug = setAug(1)
     gnuplot.pdffigure(plotFile)
     gnuplot.axis({1,epoch+5,0.5,2.5})
     gnuplot.grid(true)
@@ -98,7 +102,7 @@ for epoch = 1,nEpochs do
     if file_exists('save2') then
         os.remove('save2')
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
-        torch.save(fileName, mdl_last)
+        torch.save(fileName, mdl)
     end
     if file_exists('feat2') then
         os.remove('feat2')
