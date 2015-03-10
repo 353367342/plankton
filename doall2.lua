@@ -56,7 +56,7 @@ optimState = {
 optimMethod = optim.nag
 
 cutorch.setDevice(2) -- setgtx
-torch.manualSeed(-3308170819648392704)
+-- torch.manualSeed(-3308170819648392704)
 --torch.manualSeed(21718)
 trainFiles = '/mnt/d2/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,10)
@@ -86,7 +86,7 @@ for epoch = 1,nEpochs do
     dofile('val.lua')
     optimState.learningRate = setRate(2)
     optimState.weightDecay = setDecay(2)
-    noaug = setAug(1)
+    noaug = setAug(2)
     gnuplot.pdffigure(plotFile)
     gnuplot.axis({1,epoch+5,0.5,2.5})
     gnuplot.grid(true)
