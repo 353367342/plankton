@@ -8,9 +8,14 @@ function setAug(a)
 	end
 	if file_exists(fName) then
 		local f = io.open(fName,'r')
-		noaug = tonumber(f:read('*line'))
+		local starg = f:read('*line')
 		f:close()
-		os.remove('fName')
+		os.remove(fName)
+		if starg == 'true' then
+			noaug = true
+		else 
+			noaug = false
+		end
 	end
 	return noaug
 end

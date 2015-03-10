@@ -10,7 +10,7 @@ function setRate(a)
 		local f = io.open(fName,'r')
 		rate = tonumber(f:read('*line'))
 		f:close()
-		os.remove('fName')
+		os.remove(fName)
 	end
 	return rate
 end
