@@ -30,7 +30,7 @@ dropout_p = 0.5
 dgraph = nn.Sequential()
 dgraph:add(nn.Dropout(0.5)) -- wasn't her ein best run
 dgraph:add(nn.Linear(featuresOut,featuresOut))
-dgraph:add(nn.Dropout(0.5))
+--dgraph:add(nn.Dropout(0.5))
 dgraph:add(nn.ReLU())
 dgraph:add(nn.Linear(featuresOut,121))
 dgraph:cuda()

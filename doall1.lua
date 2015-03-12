@@ -49,7 +49,7 @@ criterion:cuda()
 
 optimState = {
     learningRate = 1e-2, -- 1e-2, --0.01, -- 1e-3, --0.03,
-    weightDecay = 1e-4, -- play with
+    weightDecay = 1e-3, -- play with
     momentum = 0.9,
     learningRateDecay = 0
 }
@@ -60,10 +60,10 @@ cutorch.setDevice(1) -- setgtx
 --torch.manualSeed(31415)
 --torch.manualSeed(21718)
 trainFiles = '/mnt/plankton_data/train_128gtn'
-trainSet, valSet = readTrainAndCrossValFiles(trainFiles,10)
+trainSet, valSet = readTrainAndCrossValFiles(trainFiles,20)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms3cudnn.lua'
+mdlFile = 'modelSrc/ms3.5.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
