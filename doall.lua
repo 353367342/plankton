@@ -1,3 +1,4 @@
+require 'inn'
 require 'nn'
 require 'image'
 require 'lfs'
@@ -9,22 +10,21 @@ require 'gnuplot'
 require('sampleAq/loadData.lua')
 require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
-require('augFuncs/affine5.lua')
+require('augFuncs/affine6.lua')
 require('modules/inception')
-require('modules/mnn')
-require('modules/fgraph')
 require('modules/ensembleBranch2.lua')
 require('paramUpdates/rate.lua')
 require('paramUpdates/decay.lua')
+require('paramUpdates/aug.lua')
 require('modules/graph.lua')
 dofile('/usr/local/lua/opencv/init.lua')
+
+noaug = false 
 
 function file_exists(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
 end
-
-
 
 loadSize = {1,128,128}
 sampleSize = {1,120,120}
@@ -46,7 +46,7 @@ criterion = nn.ClassNLLCriterion()
 criterion:cuda()
 
 optimState = {
-    learningRate = 0.01, -- 1e-2, --0.01, -- 1e-3, --0.03,
+    learningRate = 1e-2, -- 1e-2, --0.01, -- 1e-3, --0.03,
     weightDecay = 1e-4, -- play with
     momentum = 0.9,
     learningRateDecay = 0
@@ -54,14 +54,14 @@ optimState = {
 
 optimMethod = optim.nag
 
---cutorch.setDevice(2) -- setgtx
+cutorch.setDevice(1) -- setgtx
 --torch.manualSeed(31415)
 --torch.manualSeed(21718)
 trainFiles = '/mnt/plankton_data/train_128gtn'
-trainSet, valSet = readTrainAndCrossValFiles(trainFiles,5)
+trainSet, valSet = readTrainAndCrossValFiles(trainFiles,20)
 --torch.seed()
 
-mdlFile = 'modelSrc/ms3.lua'
+mdlFile = 'modelSrc/ms3extra3.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -70,6 +70,7 @@ logFile:write(mdlFile)
 logFile:write('\n')
 s = torch.initialSeed()
 logFile:write(string.format('Seed: %d\n',s))
+logFile:write('Affine6\n')
 logFile:close()
 
 --mdl = torch.load('models/model1424395071_epoch37.th')
@@ -83,12 +84,13 @@ dofile(mdlFile) -- ?
 --share = true
 plotFile = string.format('modelLogs/model%d.pdf',nModel)
 for epoch = 1,nEpochs do
-    mdl_last = mdl:clone()
+--    mdl_last = mdl:clone()
     confusion:zero()
     dofile('train.lua')
     dofile('val.lua')
-    optimState.learningRate = setRate()
-    optimState.weightDecay = setDecay()
+    optimState.learningRate = setRate(1)
+    optimState.weightDecay = setDecay(1)
+    noaug = setAug(1)
     gnuplot.pdffigure(plotFile)
     gnuplot.axis({1,epoch+5,0.5,2.5})
     gnuplot.grid(true)
@@ -98,26 +100,26 @@ for epoch = 1,nEpochs do
     gnuplot.plot({cvError[{{1,epoch}}],'-'})
     gnuplot.plotflush()
 --    torch.save('confusionMat.th',confusion)
-    if epoch % 4 == 0 then
+    if epoch % 5 == 0 then
     	optimState.learningRate = optimState.learningRate*0.8
     end
-    if file_exists('save') then
-        os.remove('save')
+    if file_exists('save1') then
+        os.remove('save1')
         fileName = string.format('models/model%d_epoch%g.th',nModel,epoch-1)
-        torch.save(fileName, mdl_last)
+        torch.save(fileName, mdl)
     end
-    if file_exists('feat') then
-        os.remove('feat')
+    if file_exists('feat1') then
+        os.remove('feat1')
         fileName = string.format('models/feat%d_epoch%g.th',nModel,epoch-1)
         torch.save(fileName, mdl)
     end
-    if file_exists('test') then
-        os.remove('test')
+    if file_exists('test1') then
+        os.remove('test1')
         testset = readTestFiles('/mnt/plankton_data/test_128gtn')
         dofile('test.lua')
     end
-    if file_exists('break') then
-        os.remove('break')
+    if file_exists('break1') then
+        os.remove('break1')
         break
     end
 end
