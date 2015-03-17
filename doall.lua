@@ -10,7 +10,7 @@ require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
 require('affine.lua')
 require('paramUpdate.lua')
-dofile('/usr/local/lua/opencv/init.lua')
+dofile('opencv/init.lua')
 
 noaug = false 
 
