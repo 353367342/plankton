@@ -3,7 +3,7 @@ require 'nn'
 -- aim for 8x8 input -> 1024 size fc layer for 256 output frames
 function fgraph(nInputPlanes,nOutputPlanes,nInEls,p) 
 	dropout_p = p
-	featuresOut = nOutputPlanes*nInEls/16
+	featuresOut = nOutputPlanes*nInEls/8
 	hiddenNodes = {featuresOut}
 	-- 1-10
 	protists = nn.Sequential()
@@ -12,7 +12,7 @@ function fgraph(nInputPlanes,nOutputPlanes,nInEls,p)
 	protists:add(nn.SpatialMaxPooling(2,2))
 	protists:add(nn.SpatialConvolution(nOutputPlanes,nOutputPlanes,3,3,1,1,1,1))
 	protists:add(nn.ReLU())
-	protists:add(nn.SpatialMaxPooling(2,2))
+	-- protists:add(nn.SpatialMaxPooling(2,2))
 	protists:add(nn.View(featuresOut))
 	protists:add(nn.Dropout(dropout_p))
 	protists:add(nn.Linear(featuresOut,hiddenNodes[1]))

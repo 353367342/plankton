@@ -12,7 +12,6 @@ require('sampleAq/writeData.lua')
 require('augFuncs/affine6.lua')
 require('modules/inception')
 require('modules/mnn')
-require('modules/fgraph')
 require('modules/ensembleBranch2.lua')
 require('paramUpdates/rate.lua')
 require('paramUpdates/decay.lua')
@@ -48,7 +47,7 @@ criterion:cuda()
 
 optimState = {
     learningRate = 0.01, -- 1e-2, --0.01, -- 1e-3, --0.03,
-    weightDecay = 1e-3, -- play with
+    weightDecay = 1e-4, -- play with
     momentum = 0.9,
     learningRateDecay = 0
 }
@@ -60,7 +59,7 @@ cutorch.setDevice(2) -- setgtx
 --torch.manualSeed(21718)
 trainFiles = '/mnt/d2/plankton_data/train_128gtn'
 trainSet, valSet = readTrainAndCrossValFiles(trainFiles,20)
-mdlFile = 'modelSrc/ms3Maxout.lua'
+mdlFile = 'modelSrc/ms3extra4.lua'
 
 logFile = io.open(string.format('modelLogs/model%d.err',nModel),'a')
 logFile:write(trainFiles)
@@ -69,6 +68,7 @@ logFile:write(mdlFile)
 logFile:write('\n')
 s = torch.initialSeed()
 logFile:write(string.format('Seed: %d\n',s))
+logFile:write('Affine6\n')
 logFile:close()
 
 -- mdl = torch.load('models/model1425226319_epoch56.th')
