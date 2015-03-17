@@ -1,7 +1,3 @@
-require 'nn'
-require 'cutorch'
-require 'cunn'
-
 features = nn.Sequential()
 features:add(nn.SpatialConvolutionMM(1,96,7,7,2,2)) -- 61 
 features:add(nn.ReLU())
@@ -38,6 +34,3 @@ mdl:cuda()
 mdl:add(features)
 mdl:add(dgraph)
 mdl:add(nn.LogSoftMax():cuda())
-
---x = mdl:forward(torch.randn(64,1,256,256):cuda())
---print(x:size())
