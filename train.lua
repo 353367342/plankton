@@ -17,10 +17,6 @@ local epochError = 0
 for t = 1,epochSize do
 
    local batch, targets = getTrainSample()
-   if share then
-      batch = shareTrans(batch:float()):cuda()
-   end
-
       -- create closure to evaluate f(X) and df/dX
       local feval = function(x)
          -- get new parameters
@@ -32,9 +28,8 @@ for t = 1,epochSize do
          local oHat = mdl:forward(batch)
          f = f + criterion:forward(oHat,targets)
          mdl:backward(batch,criterion:backward(oHat,targets)) --problem line
-         --confusion:batchAdd(oHat:float(),targets:float())
-	 epochError = epochError + f
-            print('# of Examples:',t*batchSize*augSize,'Error:',f)
+	      epochError = epochError + f
+            print('# of Examples:',t*batchSize,'Error:',f)
             return f,gradParameters
       end
       optimMethod(feval, parameters, optimState)
@@ -44,7 +39,6 @@ for t = 1,epochSize do
 time = sys.clock() - time
 print("<trainer> time for 1 Epoch = " .. (time) .. 's')
 epochError = epochError/epochSize
---torch.save('confusionMat.th',confusion)
 local errStr = string.format('Epoch: %g, Epoch Error: %g, Learning Rate: %g, Decay: %g',epoch,epochError,optimState.learningRate,optimState.weightDecay)
 print(errStr)
 local mdlErrFileName = string.format('modelLogs/model%d.err',nModel)
