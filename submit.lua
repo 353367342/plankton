@@ -3,20 +3,13 @@ require 'image'
 require 'lfs'
 require 'cutorch'
 require 'cunn'
-require 'fbcunn'
-require 'inn'
 require('sampleAq/loadData.lua')
 require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
-require('augFuncs/affine6.lua')
-require('modules/inception')
-require('modules/ensembleBranch.lua')
-require('paramUpdates/rate.lua')
-require('paramUpdates/decay.lua')
-require('modules/graph.lua')
+require('augFuncs/affine.lua')
 dofile('/usr/local/lua/opencv/init.lua')
 
-cutorch.setDevice(2)
+cutorch.setDevice(1)
 
 noaug = true 
 
@@ -26,7 +19,7 @@ testBatchSize = 32
 mdl = torch.load('models/model1426513041_epoch41.th')
 mdl:cuda()
 mdl:evaluate()
-testset = readTestFiles('/mnt/d2/plankton_data/test_128gtn')
+testset = readTestFiles('/mnt/plankton_data/test_128gtn')
 
 for i =1,1 do
     subFileName = string.format('submissions/model1426513041_epoch41_%g.csv',i)

@@ -1,8 +1,17 @@
+Kaggle - National Data Science Bowl
+===================================
+
+Plankton Classification
+-----------------------
+
+Details to come.
+
+
 MUST RENAME shrimp-like_other to shrimp_like_other
 the dash matters for lua tables
 
 ```
-Array Indicies:
+Class to int Indicies:
 Plankton: 1-116
   Protists: 1-10
   Trichodesmium: 11-14
@@ -23,16 +32,3 @@ Plankton: 1-116
   Detritus: 111-114
 Unknown/Artifacts: 117-121
 ```
-
-What each file does:
-- project/loadData.lua - script when required, loads the following table:
-```
-{
-  readTrainFiles: gets all image urls along with class name and class index from training directory
-  readTestFiles: gets all image urls for test files
-  classesToNum: returns the mapping of classes to class indicies
-}
-```
-- luaPreprocess/classTreeOrig.txt - tabbed tree pulled from kaggle forum
-- luaPreprocess/classTree.txt - reorganized classTreeOrig.txt file (red boxes that are on the same level as blue boxes go to the end of the group)
-- luaPreprocess/classesToInt - text file with lua table for mapping class names to array indicies (also copied and pasted in loadData.lua)
