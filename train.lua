@@ -1,11 +1,9 @@
 ----------------------------------------------------------------------
 print '==> train.lua'
-print '==> defining some tools'
 
 mdl:training()
 
 parameters,gradParameters = mdl:getParameters()
-print '==> configuring optimizer'
 
 print '==> defining training procedure'
 function train()
@@ -46,4 +44,5 @@ local errFile = io.open(mdlErrFileName,'a')
 errFile:write(errStr)
 errFile:close()
 end
+
 train()
