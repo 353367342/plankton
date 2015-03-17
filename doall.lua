@@ -8,16 +8,11 @@ require 'gnuplot'
 require('sampleAq/loadData.lua')
 require('sampleAq/sampleAq.lua')
 require('sampleAq/writeData.lua')
-require('augFuncs/affine.lua')
+require('affine.lua')
 require('paramUpdate.lua')
 dofile('/usr/local/lua/opencv/init.lua')
 
 noaug = false 
-
-function file_exists(name)
-   local f=io.open(name,"r")
-   if f~=nil then io.close(f) return true else return false end
-end
 
 loadSize = {1,128,128}
 sampleSize = {1,120,120}
@@ -60,9 +55,9 @@ for epoch = 1,nEpochs do
     dofile('train.lua')
     dofile('val.lua')
     dofile('plot.lua')
-    optimState.learningRate = setRate(1)
-    optimState.weightDecay = setDecay(1)
-    noaug = setAug(1)
+    optimState.learningRate = setRate()
+    optimState.weightDecay = setDecay()
+    noaug = setAug()
     if epoch % 5 == 0 then
     	optimState.learningRate = optimState.learningRate*0.8
     end
