@@ -1,3 +1,12 @@
+Kaggle - National Data Science Bowl
+===================================
+
+Plankton Classification
+-----------------------
+
+Details to come.
+
+
 MUST RENAME shrimp-like_other to shrimp_like_other
 the dash matters for lua tables
 
